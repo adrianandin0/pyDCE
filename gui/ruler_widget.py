@@ -20,8 +20,11 @@ class RulerCornerWidget(QWidget):
         super().__init__(parent)
         self.setFixedSize(22, 22)
         from PyQt6.QtCore import QSettings
-        settings = QSettings("PaintNotNet", "PaintNotNet")
-        saved_unit = str(settings.value("ruler_unit", "cm"))
+        settings = QSettings("pyDCE", "pyDCE")
+        saved_unit = settings.value("ruler_unit", None)
+        if saved_unit is None:
+            saved_unit = QSettings("PaintNotNet", "PaintNotNet").value("ruler_unit", "cm")
+        saved_unit = str(saved_unit)
         self._unit_index = UNITS.index(saved_unit) if saved_unit in UNITS else 0
         self.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.retraducir()
@@ -50,7 +53,7 @@ class RulerCornerWidget(QWidget):
             return
         self.update()
         from PyQt6.QtCore import QSettings
-        QSettings("PaintNotNet", "PaintNotNet").setValue("ruler_unit", self.unit)
+        QSettings("pyDCE", "pyDCE").setValue("ruler_unit", self.unit)
         self.unit_changed.emit(self.unit)
 
     def paintEvent(self, event):

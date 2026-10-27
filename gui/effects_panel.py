@@ -6,7 +6,7 @@ Cada efecto tiene:
   - SpinBox de Ancho
   - 1 slot de color guardable (igual estética que panel de colores)
 
-El color de cada slot se persiste en QSettings("PaintNotNet", "EffectsPanel").
+El color de cada slot se persiste en QSettings("pyDCE", "EffectsPanel").
 """
 import math
 from PyQt6.QtWidgets import (
@@ -32,7 +32,11 @@ class _EffectColorSlot(QPushButton):
         super().__init__()
         self._panel = parent_panel
         self._key   = settings_key
-        self.settings = QSettings("PaintNotNet", "EffectsPanel")
+        self.settings = QSettings("pyDCE", "EffectsPanel")
+        if not self.settings.contains(self._key):
+            legacy = QSettings("PaintNotNet", "EffectsPanel")
+            if legacy.contains(self._key):
+                self.settings.setValue(self._key, legacy.value(self._key))
         self._color: QColor | None = None
         self.setFixedSize(20, 20)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.PreventContextMenu)
@@ -424,8 +428,8 @@ class EffectsPanelWidget(QWidget):
             slot._refresh_ui()
 
     def reset_to_defaults(self):
-        settings = QSettings("PaintNotNet", "EffectsPanel")
-        settings.clear()
+        QSettings("pyDCE", "EffectsPanel").clear()
+        QSettings("PaintNotNet", "EffectsPanel").clear()
 
         self.slot_borde.set_color_external(None)
         self.slot_glow.set_color_external(None)

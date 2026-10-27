@@ -22,8 +22,11 @@ class PexelsAPIClient:
 
     @staticmethod
     def get_search_status() -> dict:
-        """Devuelve el estado de la configuración de búsqueda online."""
-        settings = QSettings("PaintNotNet", "PaintNotNet")
+        settings = QSettings("pyDCE", "pyDCE")
+        if not settings.contains("online_search_enabled"):
+            legacy = QSettings("PaintNotNet", "PaintNotNet")
+            if legacy.contains("online_search_enabled"):
+                settings = legacy
         enabled = settings.value("online_search_enabled", False, type=bool)
         free_only = settings.value("online_search_free_only", False, type=bool)
         key_serper = bool(str(settings.value("api_key_serper", "")).strip())
@@ -67,7 +70,11 @@ class PexelsAPIClient:
         photos = []
         source_clean = source.lower() if source else "todas"
 
-        settings = QSettings("PaintNotNet", "PaintNotNet")
+        settings = QSettings("pyDCE", "pyDCE")
+        if not settings.contains("api_key_pexels") and not settings.contains("api_key_serper"):
+            legacy = QSettings("PaintNotNet", "PaintNotNet")
+            if legacy.contains("api_key_pexels") or legacy.contains("api_key_serper"):
+                settings = legacy
         key_serper = str(settings.value("api_key_serper", "")).strip()
         key_pexels = str(settings.value("api_key_pexels", "")).strip()
         key_unsplash = str(settings.value("api_key_unsplash", "")).strip()
@@ -128,7 +135,7 @@ class PexelsAPIClient:
             f"action=query&generator=search&gsrsearch={encoded_q}&gsrnamespace=6&gsrlimit={per_page}&gsroffset={offset}"
             "&prop=imageinfo&iiprop=url|size&format=json"
         )
-        headers = {"User-Agent": "PaintNotNet/2.0 (https://github.com/adrianandin0/PaintNotNet)"}
+        headers = {"User-Agent": "pyDCE/2.0 (https://github.com/adrianandin0/pyDCE)"}
         ctx = _get_ssl_context()
         req = urllib.request.Request(url, headers=headers)
 
@@ -164,7 +171,7 @@ class PexelsAPIClient:
         url = f"https://api.pexels.com/v1/search?query={encoded_q}&page={page}&per_page={per_page}"
         headers = {
             "Authorization": api_key,
-            "User-Agent": "PaintNotNet/2.0"
+            "User-Agent": "pyDCE/2.0"
         }
         ctx = _get_ssl_context()
         req = urllib.request.Request(url, headers=headers)
@@ -198,7 +205,7 @@ class PexelsAPIClient:
         url = f"https://api.unsplash.com/search/photos?query={encoded_q}&page={page}&per_page={per_page}"
         headers = {
             "Authorization": f"Client-ID {api_key}",
-            "User-Agent": "PaintNotNet/2.0"
+            "User-Agent": "pyDCE/2.0"
         }
         ctx = _get_ssl_context()
         req = urllib.request.Request(url, headers=headers)
@@ -233,7 +240,7 @@ class PexelsAPIClient:
         headers = {
             "X-API-KEY": api_key,
             "Content-Type": "application/json",
-            "User-Agent": "PaintNotNet/2.0"
+            "User-Agent": "pyDCE/2.0"
         }
         payload = json.dumps({
             "q": search_term,
@@ -273,7 +280,7 @@ class PexelsAPIClient:
             return []
         encoded_q = urllib.parse.quote(query)
         url = f"https://pixabay.com/api/?key={api_key}&q={encoded_q}&page={page}&per_page={per_page}"
-        headers = {"User-Agent": "PaintNotNet/2.0"}
+        headers = {"User-Agent": "pyDCE/2.0"}
         ctx = _get_ssl_context()
         req = urllib.request.Request(url, headers=headers)
         photos = []
@@ -302,7 +309,7 @@ class PexelsAPIClient:
         if not url:
             return None
         headers = {
-            "User-Agent": "PaintNotNet/2.0 (https://github.com/adrianandin0/PaintNotNet)"
+            "User-Agent": "pyDCE/2.0 (https://github.com/adrianandin0/pyDCE)"
         }
         ctx = _get_ssl_context()
         req = urllib.request.Request(url, headers=headers)

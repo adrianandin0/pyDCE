@@ -1,5 +1,5 @@
 """
-core/emergency_save.py — Sistema de Autoguardado de Emergencia para PaintNotNet.
+core/emergency_save.py — Sistema de Autoguardado de Emergencia para pyDCE.
 
 Guarda automáticamente los lienzos abiertos en formato .pnn en una carpeta temporal
 de respaldos cada vez que se registran cambios.
@@ -18,16 +18,34 @@ from core.pnn_format import guardar_proyecto_pnn, cargar_proyecto_pnn, CURRENT_F
 
 def obtener_directorio_emergencia():
     """Devuelve la ruta absoluta del directorio de respaldos de emergencia."""
-    settings = QSettings("PaintNotNet", "PaintNotNet")
-    def_path = settings.value("default_save_path", None)
+    settings = QSettings("pyDCE", "pyDCE")
+    def_path = settings.value("default_save_path", None) or QSettings("PaintNotNet", "PaintNotNet").value("default_save_path", None)
+
+    user_home = os.path.expanduser("~")
+    old_dir = os.path.join(user_home, ".paintnotnet", "emergency_backups")
+    new_dir = os.path.join(user_home, ".pydce", "emergency_backups")
 
     if def_path and os.path.exists(str(def_path)):
         base_dir = os.path.join(str(def_path), "emergency_backups")
     else:
-        user_home = os.path.expanduser("~")
-        base_dir = os.path.join(user_home, ".paintnotnet", "emergency_backups")
+        if os.path.exists(old_dir) and not os.path.exists(new_dir):
+            base_dir = old_dir
+        else:
+            base_dir = new_dir
 
-    os.makedirs(base_dir, exist_ok=True)
+    try:
+        os.makedirs(base_dir, exist_ok=True)
+    except OSError:
+        if os.path.exists(old_dir):
+            base_dir = old_dir
+        else:
+            import tempfile
+            base_dir = os.path.join(tempfile.gettempdir(), ".pydce_emergency_backups")
+            try:
+                os.makedirs(base_dir, exist_ok=True)
+            except OSError:
+                pass
+
     return base_dir
 
 
@@ -297,7 +315,7 @@ class EmergencySaveManager(QObject):
                 dpi_config = {"x": dpi_config[0], "y": dpi_config[1]}
 
             manifest_info = {
-                "format": "PaintNotNet Project",
+                "format": "pyDCE Project",
                 "format_version": CURRENT_FORMAT_VERSION,
                 "app_version": _obtener_version_app(),
                 "created_at": created_at,

@@ -15,8 +15,11 @@ class CanvasContainerWidget(QWidget):
         self.main_window = main_window
 
         from PyQt6.QtCore import QSettings
-        settings = QSettings("PaintNotNet", "PaintNotNet")
-        saved_unit = str(settings.value("ruler_unit", "cm"))
+        settings = QSettings("pyDCE", "pyDCE")
+        saved_unit = settings.value("ruler_unit", None)
+        if saved_unit is None:
+            saved_unit = QSettings("PaintNotNet", "PaintNotNet").value("ruler_unit", "cm")
+        saved_unit = str(saved_unit)
         if saved_unit not in ["cm", "in", "px"]:
             saved_unit = "cm"
 
@@ -85,7 +88,7 @@ class CanvasContainerWidget(QWidget):
 
     def _on_unit_changed(self, new_unit: str):
         from PyQt6.QtCore import QSettings
-        QSettings("PaintNotNet", "PaintNotNet").setValue("ruler_unit", new_unit)
+        QSettings("pyDCE", "pyDCE").setValue("ruler_unit", new_unit)
         self.top_ruler.set_unit(new_unit)
         self.left_ruler.set_unit(new_unit)
         if self.main_window and hasattr(self.main_window, 'tab_widget'):

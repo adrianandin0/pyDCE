@@ -96,8 +96,10 @@ class ThemeManager:
         return "Oscuro"
 
     def cargar_tema_configurado(self):
-        settings = QSettings("PaintNotNet", "PaintNotNet")
-        tema = settings.value("theme", "Definido por el sistema")
+        settings = QSettings("pyDCE", "pyDCE")
+        tema = settings.value("theme", None)
+        if tema is None:
+            tema = QSettings("PaintNotNet", "PaintNotNet").value("theme", "Definido por el sistema")
         self.current_theme = str(tema)
 
     def establecer_tema(self, nombre_tema: str, main_window=None):

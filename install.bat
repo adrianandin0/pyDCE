@@ -3,7 +3,7 @@ chcp 65001 > NUL
 setlocal enabledelayedexpansion
 
 echo ==============================================================
-echo         Instalador de PaintNotNet v1.0.9dev para Windows
+echo         Instalador de pyDCE v1.0.9dev para Windows
 echo ==============================================================
 echo.
 
@@ -57,20 +57,20 @@ if not exist "venv\Scripts\pyinstaller.exe" (
     )
 )
 
-echo [i] Compilando PaintNotNet con PyInstaller...
+echo [i] Compilando pyDCE con PyInstaller...
 if exist "venv\Scripts\pyinstaller.exe" (
-    venv\Scripts\pyinstaller.exe --noconfirm --clean --workpath build_pkg --distpath dist_pkg PaintNotNet.spec
+    venv\Scripts\pyinstaller.exe --noconfirm --clean --workpath build_pkg --distpath dist_pkg pyDCE.spec
 ) else (
-    pyinstaller --noconfirm --clean --workpath build_pkg --distpath dist_pkg PaintNotNet.spec
+    pyinstaller --noconfirm --clean --workpath build_pkg --distpath dist_pkg pyDCE.spec
 )
 
-:: 3. Definir carpeta de instalación del usuario (%LOCALAPPDATA%\PaintNotNet)
-set "INSTALL_DIR=%LOCALAPPDATA%\PaintNotNet"
+:: 3. Definir carpeta de instalación del usuario (%LOCALAPPDATA%\pyDCE)
+set "INSTALL_DIR=%LOCALAPPDATA%\pyDCE"
 echo.
 echo [i] Instalando archivos en: %INSTALL_DIR%...
 
 mkdir "%INSTALL_DIR%" 2>nul
-xcopy /E /Y /I "dist_pkg\PaintNotNet\*" "%INSTALL_DIR%\"
+xcopy /E /Y /I "dist_pkg\pyDCE\*" "%INSTALL_DIR%\"
 
 :: Copiar expresamente el archivo de icono .ico a la raíz, gui/ y gui/iconos/
 mkdir "%INSTALL_DIR%\gui" 2>nul
@@ -86,14 +86,16 @@ if exist "gui\paintdotnet.ico" (
 )
 
 :: 4. Eliminar accesos directos viejos con caché congelada
+del /F /Q "%USERPROFILE%\Desktop\pyDCE.lnk" 2>nul
+del /F /Q "%APPDATA%\Microsoft\Windows\Start Menu\Programs\pyDCE.lnk" 2>nul
 del /F /Q "%USERPROFILE%\Desktop\PaintNotNet.lnk" 2>nul
 del /F /Q "%APPDATA%\Microsoft\Windows\Start Menu\Programs\PaintNotNet.lnk" 2>nul
 
 :: 5. Crear accesos directos resolviendo rutas absolutas completas con $env:LOCALAPPDATA
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$appDir = \"$env:LOCALAPPDATA\PaintNotNet\"; $iconPath = \"$appDir\paintdotnet.ico,0\"; $exePath = \"$appDir\PaintNotNet.exe\"; $deskPath = [System.Environment]::GetFolderPath('Desktop') + '\PaintNotNet.lnk'; $startPath = [System.Environment]::GetFolderPath('StartMenu') + '\Programs\PaintNotNet.lnk'; $s1 = (New-Object -COM WScript.Shell).CreateShortcut($deskPath); $s1.TargetPath = $exePath; $s1.IconLocation = $iconPath; $s1.WorkingDirectory = $appDir; $s1.Save(); $s2 = (New-Object -COM WScript.Shell).CreateShortcut($startPath); $s2.TargetPath = $exePath; $s2.IconLocation = $iconPath; $s2.WorkingDirectory = $appDir; $s2.Save()"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$appDir = \"$env:LOCALAPPDATA\pyDCE\"; $iconPath = \"$appDir\paintdotnet.ico,0\"; $exePath = \"$appDir\pyDCE.exe\"; $deskPath = [System.Environment]::GetFolderPath('Desktop') + '\pyDCE.lnk'; $startPath = [System.Environment]::GetFolderPath('StartMenu') + '\Programs\pyDCE.lnk'; $s1 = (New-Object -COM WScript.Shell).CreateShortcut($deskPath); $s1.TargetPath = $exePath; $s1.IconLocation = $iconPath; $s1.WorkingDirectory = $appDir; $s1.Save(); $s2 = (New-Object -COM WScript.Shell).CreateShortcut($startPath); $s2.TargetPath = $exePath; $s2.IconLocation = $iconPath; $s2.WorkingDirectory = $appDir; $s2.Save()"
 
 :: 6. Pre-configurar el idioma en el archivo de preferencias de usuario
-set "CONFIG_FILE=%INSTALL_DIR%\PaintNotNet.conf"
+set "CONFIG_FILE=%INSTALL_DIR%\pyDCE.conf"
 if not exist "%CONFIG_FILE%" (
     (
         echo [General]
@@ -109,7 +111,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command "$code = '[DllImport(\"sh
 
 echo.
 echo ==============================================================
-echo      ¡PaintNotNet se ha instalado exitosamente en Windows!
+echo      ¡pyDCE se ha instalado exitosamente en Windows!
 echo ==============================================================
 echo Puedes iniciar la aplicación desde:
 echo   1. El acceso directo creado en tu Escritorio

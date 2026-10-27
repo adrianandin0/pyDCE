@@ -1,5 +1,5 @@
 """
-core/canvas_renderer.py — Motor de composición gráfica y dibujo para el lienzo de PaintNotNet.
+core/canvas_renderer.py — Motor de composición gráfica y dibujo para el lienzo de pyDCE.
 """
 from PyQt6.QtCore import QRectF, QPointF, Qt
 from PyQt6.QtGui import QPainter, QImage, QPen, QColor, QBrush, QPixmap

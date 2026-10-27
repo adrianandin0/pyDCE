@@ -1,5 +1,5 @@
 """
-dialogo_archivo.py – Gestor de archivos propio de PaintNotNet.
+dialogo_archivo.py – Gestor de archivos propio de pyDCE.
 Reemplaza QFileDialog para evitar dependencias del entorno de escritorio.
 Incluye múltiples vistas (Íconos/Mosaico, Lista, Detalle), tamaños de miniatura
 variables, vista previa de imágenes, ordenación por diversos criterios,
@@ -211,7 +211,7 @@ VISTA_DETALLE = 2
 
 class DialogoArchivo(QDialog):
     """
-    Diálogo de exploración de archivos propio de PaintNotNet.
+    Diálogo de exploración de archivos propio de pyDCE.
     Permite modos Íconos (Mosaico), Lista, Detalle, Favoritos personalizados,
     búsqueda de archivos y miniaturas variables.
     """
@@ -223,8 +223,13 @@ class DialogoArchivo(QDialog):
         self._modo = modo
         self._ruta_seleccionada = None
         self._historial = []
-        self._pos_historial = -1
-        self.settings = QSettings("PaintNotNet", "PaintNotNet")
+        self.settings = QSettings("pyDCE", "pyDCE")
+        if not self.settings.contains("dialogo_archivo/modo_vista"):
+            legacy = QSettings("PaintNotNet", "PaintNotNet")
+            if legacy.contains("dialogo_archivo/modo_vista"):
+                for k in legacy.allKeys():
+                    if k.startswith("dialogo_archivo/"):
+                        self.settings.setValue(k, legacy.value(k))
 
         # Cargar preferencias de vista y favoritos
         self._modo_vista = int(self.settings.value("dialogo_archivo/modo_vista", VISTA_LISTA))

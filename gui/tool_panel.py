@@ -137,8 +137,12 @@ class ToolPanelWidget(QWidget):
     def actualizar_insignias_atajos(self):
         from gui.dialogo_atajos import cargar_atajos
         from PyQt6.QtCore import QSettings
-        settings = QSettings("PaintNotNet", "PaintNotNet")
-        show_shortcuts = settings.value("show_shortcuts", True, type=bool)
+        settings = QSettings("pyDCE", "pyDCE")
+        show_shortcuts = settings.value("show_shortcuts", None)
+        if show_shortcuts is None:
+            show_shortcuts = QSettings("PaintNotNet", "PaintNotNet").value("show_shortcuts", True, type=bool)
+        else:
+            show_shortcuts = bool(show_shortcuts)
 
         atajos = cargar_atajos()
 

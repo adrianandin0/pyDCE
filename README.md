@@ -1,22 +1,22 @@
 <p align="center">
-  <img src="gui/icono.png" width="128" alt="PaintNotNet Logo">
+  <img src="gui/icono.png" width="128" alt="pyDCE Logo">
 </p>
 
-<h1 align="center">PaintNotNet</h1>
+<h1 align="center"><b>pyDCE</b>: <b>Py</b>thon <b>D</b>igital <b>C</b>anvas <b>E</b>ditor</h1>
 
 <p align="center">
   <b>A lightweight, powerful, and modern image editor for Linux inspired by Paint.NET.</b>
 </p>
 
 <p align="center">
-  <a href="https://github.com/adrianandin0/PaintNotNet/stargazers"><img src="https://img.shields.io/github/stars/adrianandin0/PaintNotNet?style=flat-square&color=64B4FF" alt="Stars"></a>
-  <a href="https://github.com/adrianandin0/PaintNotNet/issues"><img src="https://img.shields.io/github/issues/adrianandin0/PaintNotNet?style=flat-square&color=00AAFF" alt="Issues"></a>
-  <a href="https://github.com/adrianandin0/PaintNotNet/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-64B4FF?style=flat-square" alt="License"></a>
+  <a href="https://github.com/adrianandin0/pyDCE/stargazers"><img src="https://img.shields.io/github/stars/adrianandin0/pyDCE?style=flat-square&color=64B4FF" alt="Stars"></a>
+  <a href="https://github.com/adrianandin0/pyDCE/issues"><img src="https://img.shields.io/github/issues/adrianandin0/pyDCE?style=flat-square&color=00AAFF" alt="Issues"></a>
+  <a href="https://github.com/adrianandin0/pyDCE/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-64B4FF?style=flat-square" alt="License"></a>
   <a href="https://x.com/adrian_and_ino"><img src="https://img.shields.io/badge/X-@adrian__and__ino-black?style=flat-square&logo=x" alt="X Profile"></a>
 </p>
 
 <p align="center">
-  <img src="gui/screenshot.png" alt="PaintNotNet Screenshot" width="90%">
+  <img src="gui/screenshot.png" alt="pyDCE Screenshot" width="90%">
 </p>
 
 ---
@@ -39,7 +39,7 @@
 
 ## About the Project
 
-**PaintNotNet** is an image editor built with **Python 3** and **PyQt6** as a tribute to **Paint.NET**. It was created to fill the gap left by the absence of an official Linux release, providing a fast, smooth, and familiar experience for **Linux** users. While cross-platform Python allows it to run on Windows, its design and development are primarily aimed at the Linux community.
+**pyDCE**: **Py**thon **D**igital **C**anvas **E**ditor is an image editor built with **Python 3** and **PyQt6** as a tribute to **Paint.NET**. It was created to fill the gap left by the absence of an official Linux release, providing a fast, smooth, and familiar experience for **Linux** users. While cross-platform Python allows it to run on Windows, its design and development are primarily aimed at the Linux community.
 
 ---
 
@@ -58,7 +58,7 @@
 - **Advanced Color Panel**: Color wheel, RGB/HSV/CMYK sliders, and saved palette history.
 
 <p align="center">
-  <img src="gui/options.png" alt="PaintNotNet Options and Features Preview" width="90%">
+  <img src="gui/options.png" alt="pyDCE Options and Features Preview" width="90%">
 </p>
 
 ---
@@ -94,7 +94,7 @@
 | Zoom | Zoom in/out or select a specific area to focus |
 
 <p align="center">
-  <img src="gui/options_2.png" alt="PaintNotNet Tools Preview" width="90%">
+  <img src="gui/options_2.png" alt="pyDCE Tools Preview" width="90%">
 </p>
 
 ---
@@ -103,7 +103,7 @@
 
 ### Architecture (v2)
 
-PaintNotNet is structured into modular components:
+pyDCE is structured into modular components:
 
 | Module | Role |
 |--------|------|
@@ -134,7 +134,7 @@ PaintNotNet is structured into modular components:
 - **Linux** (Debian/Ubuntu, Fedora, Arch Linux, openSUSE, and derivatives)
 
 <p align="center">
-  <img src="gui/options_3.png" alt="PaintNotNet Platforms Preview" width="90%">
+  <img src="gui/options_3.png" alt="pyDCE Platforms Preview" width="90%">
 </p>
 
 ---
@@ -174,8 +174,8 @@ Open your terminal and run the command corresponding to your distribution:
 #### Step 2: Clone the Repository
 Once Python and Git are installed, download the repository:
 ```bash
-git clone https://github.com/adrianandin0/PaintNotNet.git
-cd PaintNotNet
+git clone https://github.com/adrianandin0/pyDCE.git
+cd pyDCE
 ```
 
 #### Step 3: Run the Automated Installer (`install.sh`)
@@ -183,9 +183,9 @@ The `install.sh` script sets up a virtual environment, installs dependencies, co
 ```bash
 sudo ./install.sh
 ```
-Select your preferred language (01 - Spanish / 02 - English / 03 - French / 04 - Portuguese). Once finished, launch PaintNotNet from your application menu or by running:
+Select your preferred language (01 - Spanish / 02 - English / 03 - French / 04 - Portuguese). Once finished, launch pyDCE from your application menu or by running:
 ```bash
-paintnotnet
+pydce
 ```
 
 ---
@@ -194,7 +194,7 @@ paintnotnet
 
 > [!NOTE]
 > **Note for Windows users**:  
-> If you are on Windows, we strongly encourage you to use the official **[Paint.NET](https://www.getpaint.net/)** application. PaintNotNet was created as a tribute dedicated to the Linux community. While Python allows it to run on Windows, we encourage supporting the original software on its native platform.
+> If you are on Windows, we strongly encourage you to use the official **[Paint.NET](https://www.getpaint.net/)** application. pyDCE was created as a tribute dedicated to the Linux community. While Python allows it to run on Windows, we encourage supporting the original software on its native platform.
 
 #### Step 1: Install Python and Git via Winget
 Open **Command Prompt (CMD)** or **PowerShell** and run:
@@ -208,8 +208,8 @@ winget install --id Python.Python.3.12 -e & winget install --id Git.Git -e
 #### Step 2: Clone the Repository
 In your **new terminal window**, run:
 ```cmd
-git clone https://github.com/adrianandin0/PaintNotNet.git
-cd PaintNotNet
+git clone https://github.com/adrianandin0/pyDCE.git
+cd pyDCE
 ```
 
 #### Step 3: Set Up Virtual Environment & Dependencies
@@ -224,18 +224,18 @@ pip install -r requirements_windows.txt pyinstaller
 ```cmd
 install.bat
 ```
-This builds the native executable, installs it to `%LOCALAPPDATA%\PaintNotNet`, and creates shortcuts on your **Desktop** and **Start Menu**.
+This builds the native executable, installs it to `%LOCALAPPDATA%\pyDCE`, and creates shortcuts on your **Desktop** and **Start Menu**.
 
 ---
 
 ### Direct Execution from Source Code
 
-If you prefer not to compile or install system packages, run PaintNotNet directly with Python (after completing Step 1 for your OS):
+If you prefer not to compile or install system packages, run pyDCE directly with Python (after completing Step 1 for your OS):
 
 #### Linux:
 ```bash
-git clone https://github.com/adrianandin0/PaintNotNet.git
-cd PaintNotNet
+git clone https://github.com/adrianandin0/pyDCE.git
+cd pyDCE
 python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
@@ -245,8 +245,8 @@ python main.py
 
 #### Windows:
 ```cmd
-git clone https://github.com/adrianandin0/PaintNotNet.git
-cd PaintNotNet
+git clone https://github.com/adrianandin0/pyDCE.git
+cd pyDCE
 python -m venv venv
 call venv\Scripts\activate.bat
 pip install --upgrade pip
@@ -289,7 +289,7 @@ python main.py
 
 Contributions, translations, and bug reports are welcome!
 
-- **Report a Bug**: Open an issue on [GitHub Issues](https://github.com/adrianandin0/PaintNotNet/issues).
+- **Report a Bug**: Open an issue on [GitHub Issues](https://github.com/adrianandin0/pyDCE/issues).
 - **Submit Code**: Fork the repository, create a feature branch, and open a Pull Request.
 
 ---
@@ -298,7 +298,7 @@ Contributions, translations, and bug reports are welcome!
 
 - **Developer**: Adrian
 - **X (Twitter)**: [@adrian_and_ino](https://x.com/adrian_and_ino)
-- **GitHub**: [adrianandin0/PaintNotNet](https://github.com/adrianandin0/PaintNotNet)
+- **GitHub**: [adrianandin0/pyDCE](https://github.com/adrianandin0/pyDCE)
 
 Developed in Python with assistance from **Google Gemini** and **Google Antigravity**.
 

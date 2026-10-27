@@ -94,7 +94,11 @@ class TopToolBarWidget(QToolBar):
     def __init__(self, main_window=None):
         super().__init__("Barra de Herramientas General", main_window)
         self.main_window = main_window
-        self.settings = QSettings("PaintNotNet", "PaintNotNet")
+        self.settings = QSettings("pyDCE", "pyDCE")
+        if not self.settings.allKeys():
+            legacy = QSettings("PaintNotNet", "PaintNotNet")
+            for k in legacy.allKeys():
+                self.settings.setValue(k, legacy.value(k))
         self.setMovable(False)
         self.setFloatable(False)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.PreventContextMenu)

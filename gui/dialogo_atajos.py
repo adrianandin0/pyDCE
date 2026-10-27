@@ -51,15 +51,18 @@ TOOL_ICONS = {
 }
 
 def cargar_atajos():
-    settings = QSettings("PaintNotNet", "PaintNotNet")
+    settings = QSettings("pyDCE", "pyDCE")
+    legacy = QSettings("PaintNotNet", "PaintNotNet")
     atajos = {}
     for tool_name, default_key in DEFAULT_SHORTCUTS.items():
-        val = settings.value(f"shortcut_{tool_name}", default_key)
+        val = settings.value(f"shortcut_{tool_name}", None)
+        if val is None:
+            val = legacy.value(f"shortcut_{tool_name}", default_key)
         atajos[tool_name] = str(val) if val else default_key
     return atajos
 
 def guardar_atajos(atajos_dict):
-    settings = QSettings("PaintNotNet", "PaintNotNet")
+    settings = QSettings("pyDCE", "pyDCE")
     for tool_name, key in atajos_dict.items():
         settings.setValue(f"shortcut_{tool_name}", str(key).upper())
 

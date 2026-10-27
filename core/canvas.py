@@ -154,7 +154,8 @@ class CanvasWidget(QWidget):
         self.layer_mgr.on_cache_invalidated = self._on_layer_cache_invalidated
         self._ajustar_tamano_widget(width, height)
         from PyQt6.QtCore import QSettings
-        max_ram_mb = QSettings("PaintNotNet", "PaintNotNet").value("max_history_ram_mb", 512, type=int)
+        max_ram_val = QSettings("pyDCE", "pyDCE").value("max_history_ram_mb", None)
+        max_ram_mb = int(max_ram_val) if max_ram_val is not None else QSettings("PaintNotNet", "PaintNotNet").value("max_history_ram_mb", 512, type=int)
         self.history_mgr = HistoryManager(200, max_memory_mb=max_ram_mb)
         self.selection_engine = SelectionEngine()
 
@@ -197,7 +198,8 @@ class CanvasWidget(QWidget):
         self.last_point = QPoint()
         self.cursor_pos = None
         from PyQt6.QtCore import QSettings
-        self.show_pixel_grid = QSettings("PaintNotNet", "PaintNotNet").value("show_pixel_grid", False, type=bool)
+        grid_val = QSettings("pyDCE", "pyDCE").value("show_pixel_grid", None)
+        self.show_pixel_grid = bool(grid_val) if grid_val is not None else QSettings("PaintNotNet", "PaintNotNet").value("show_pixel_grid", False, type=bool)
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 

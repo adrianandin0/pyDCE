@@ -24,7 +24,13 @@ class DialogoNuevoArchivo(QDialog):
         self.setFixedWidth(290)
 
         # Cargar valores guardados como predeterminados si existen
-        self.settings = QSettings("PaintNotNet", "PaintNotNet")
+        self.settings = QSettings("pyDCE", "pyDCE")
+        if not self.settings.contains("default_canvas_w"):
+            legacy = QSettings("PaintNotNet", "PaintNotNet")
+            if legacy.contains("default_canvas_w"):
+                for k in legacy.allKeys():
+                    if not self.settings.contains(k):
+                        self.settings.setValue(k, legacy.value(k))
         saved_w = self.settings.value("default_canvas_w", None, type=int)
         saved_h = self.settings.value("default_canvas_h", None, type=int)
         saved_trans = self.settings.value("default_canvas_transparent", False, type=bool)
@@ -290,7 +296,7 @@ class DialogoAbrirOInsertarReciente(QDialog):
 class MenuArchivo:
     def __init__(self, ventana_principal):
         self.ventana = ventana_principal
-        self.settings = QSettings("PaintNotNet", "PaintNotNet")
+        self.settings = getattr(ventana_principal, "settings", None) or QSettings("pyDCE", "pyDCE")
 
     def obtener_home_real(self):
         dir_guardado = self.settings.value("default_dir", None)
@@ -364,8 +370,10 @@ class MenuArchivo:
     EXTENSIONES_IMAGEN_VALIDAS = ('.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pnn')
 
     def obtener_archivos_recientes(self):
-        settings = QSettings("PaintNotNet", "RecentFiles")
-        val = settings.value("recientes", [], type=list)
+        settings = QSettings("pyDCE", "RecentFiles")
+        val = settings.value("recientes", None, type=list)
+        if val is None:
+            val = QSettings("PaintNotNet", "RecentFiles").value("recientes", [], type=list)
         archivos = []
         for item in val:
             if item:
@@ -382,7 +390,7 @@ class MenuArchivo:
         if ext not in self.EXTENSIONES_IMAGEN_VALIDAS:
             return
 
-        settings = QSettings("PaintNotNet", "RecentFiles")
+        settings = QSettings("pyDCE", "RecentFiles")
         recientes = self.obtener_archivos_recientes()
 
         if ruta in recientes:
@@ -492,7 +500,7 @@ class MenuArchivo:
         dir_home = self.obtener_home_real()
         filtros = [
             ("Todos los archivos soportados", "*.pnn *.png *.jpg *.jpeg *.webp *.gif *.tiff *.tif *.bmp *.ico *.tga *.ppm"),
-            ("Borrador PaintNotNet",          "*.pnn"),
+            ("Borrador pyDCE",                "*.pnn"),
             ("Imágenes",                      "*.png *.jpg *.jpeg *.webp *.gif *.tiff *.tif *.bmp *.ico *.tga *.ppm"),
             ("Todos los archivos",            "*"),
         ]
@@ -585,7 +593,7 @@ class MenuArchivo:
         # Construir lista de filtros para DialogoArchivo
         filtros_dialogo = [
             ("Imagen PNG",          "*.png"),
-            ("Borrador PaintNotNet", "*.pnn"),
+            ("Borrador pyDCE",      "*.pnn"),
             ("Imagen JPG",          "*.jpg *.jpeg"),
             ("Imagen WEBP",         "*.webp"),
             ("Imagen GIF",          "*.gif"),

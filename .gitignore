@@ -29,6 +29,7 @@ share/python-wheels/
 *.egg
 MANIFEST
 PaintNotNet/
+pyDCE/
 PNN*
 
 # PyInstaller / Nuitka / Py2exe build outputs
@@ -39,6 +40,7 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Unit test / coverage reports
+test*
 htmlcov/
 .tox/
 .nox/
@@ -78,10 +80,11 @@ temp/
 *.swo
 *.kate-swp
 .DS_Store
-Thumbs.db
+Thumbs.db*
 
 # User preferences & runtime settings
 .PaintNotNet.ini
+.pyDCE.ini
 
 # Windows compilation exclusive files (Local VM build only)
 setup.iss
@@ -103,7 +106,9 @@ build_all.sh
 *.pkg.tar.zst
 *.exe
 PNN-Setup_*.exe
+pyDCE-Setup_*.exe
 paintnotnet_*
+pydce_*
 .tempmediaStorage/
 
 # Excluir cualquier archivo o carpeta sensible (PayPal / Bitcoin / QR)

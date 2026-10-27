@@ -45,8 +45,11 @@ class DialogoOpciones(QDialog):
                 font-weight: normal;
             }
         """)
-
-        self.settings = QSettings("PaintNotNet", "PaintNotNet")
+        self.settings = QSettings("pyDCE", "pyDCE")
+        if not self.settings.allKeys():
+            legacy = QSettings("PaintNotNet", "PaintNotNet")
+            for k in legacy.allKeys():
+                self.settings.setValue(k, legacy.value(k))
 
         layout = QVBoxLayout()
         layout.setContentsMargins(12, 10, 12, 10)
@@ -232,7 +235,7 @@ class DialogoOpciones(QDialog):
         self.combo_format = QComboBox()
         self.combo_format.addItems([
             "PNG (*.png)",
-            "PaintNotNet (*.pnn)",
+            "pyDCE (*.pnn)",
             "JPG (*.jpg)",
             "WEBP (*.webp)",
             "GIF (*.gif)",
@@ -242,6 +245,8 @@ class DialogoOpciones(QDialog):
             "TGA (*.tga)",
         ])
         default_fmt = self.settings.value("default_format", "PNG (*.png)")
+        if default_fmt == "PaintNotNet (*.pnn)":
+            default_fmt = "pyDCE (*.pnn)"
         idx = self.combo_format.findText(str(default_fmt))
         if idx >= 0:
             self.combo_format.setCurrentIndex(idx)
@@ -305,7 +310,8 @@ class DialogoOpciones(QDialog):
 
         self.btn_link_serper = QPushButton(t("Obtener key gratis"))
         self.btn_link_serper.setFixedWidth(135)
-        self.btn_link_serper.clicked.connect(lambda: self._abrir_url_externa("https://serper.dev/"))
+        self.btn_link_serper.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_link_serper.clicked.connect(lambda checked=False: self._abrir_url_externa("https://serper.dev/"))
         row_serper.addWidget(lbl_serper)
         row_serper.addWidget(self.input_api_serper)
         row_serper.addWidget(self.btn_show_serper)
@@ -331,7 +337,8 @@ class DialogoOpciones(QDialog):
 
         self.btn_link_pexels = QPushButton(t("Obtener key gratis"))
         self.btn_link_pexels.setFixedWidth(135)
-        self.btn_link_pexels.clicked.connect(lambda: self._abrir_url_externa("https://www.pexels.com/api/"))
+        self.btn_link_pexels.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_link_pexels.clicked.connect(lambda checked=False: self._abrir_url_externa("https://www.pexels.com/api/"))
         row_pexels.addWidget(lbl_pexels)
         row_pexels.addWidget(self.input_api_pexels)
         row_pexels.addWidget(self.btn_show_pexels)
@@ -357,7 +364,8 @@ class DialogoOpciones(QDialog):
 
         self.btn_link_unsplash = QPushButton(t("Obtener key gratis"))
         self.btn_link_unsplash.setFixedWidth(135)
-        self.btn_link_unsplash.clicked.connect(lambda: self._abrir_url_externa("https://unsplash.com/developers"))
+        self.btn_link_unsplash.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_link_unsplash.clicked.connect(lambda checked=False: self._abrir_url_externa("https://unsplash.com/developers"))
         row_unsplash.addWidget(lbl_unsplash)
         row_unsplash.addWidget(self.input_api_unsplash)
         row_unsplash.addWidget(self.btn_show_unsplash)
@@ -383,7 +391,8 @@ class DialogoOpciones(QDialog):
 
         self.btn_link_pixabay = QPushButton(t("Obtener key gratis"))
         self.btn_link_pixabay.setFixedWidth(135)
-        self.btn_link_pixabay.clicked.connect(lambda: self._abrir_url_externa("https://pixabay.com/api/docs/"))
+        self.btn_link_pixabay.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_link_pixabay.clicked.connect(lambda checked=False: self._abrir_url_externa("https://pixabay.com/api/docs/"))
         row_pixabay.addWidget(lbl_pixabay)
         row_pixabay.addWidget(self.input_api_pixabay)
         row_pixabay.addWidget(self.btn_show_pixabay)
@@ -452,6 +461,9 @@ class DialogoOpciones(QDialog):
             if parent and hasattr(parent, 'reset_panel_layout_and_preferences'):
                 parent.reset_panel_layout_and_preferences()
             else:
+                QSettings("pyDCE", "pyDCE").clear()
+                QSettings("pyDCE", "EffectsPanel").clear()
+                QSettings("pyDCE", "RecentFiles").clear()
                 QSettings("PaintNotNet", "PaintNotNet").clear()
                 QSettings("PaintNotNet", "EffectsPanel").clear()
                 QSettings("PaintNotNet", "RecentFiles").clear()
@@ -464,12 +476,8 @@ class DialogoOpciones(QDialog):
             self.accept()
 
     def _abrir_url_externa(self, url: str):
-        import webbrowser
-        try:
-            if not QDesktopServices.openUrl(QUrl(url)):
-                webbrowser.open(url)
-        except Exception:
-            webbrowser.open(url)
+        from core.system_utils import abrir_url_externa
+        abrir_url_externa(url, parent=self)
 
     def _on_online_search_toggled(self, checked: bool):
         self._update_online_controls_state()

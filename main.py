@@ -26,6 +26,10 @@ from gui.menu_ver import MenuVer
 from gui.menu_ajustes import MenuAjustes
 from gui.menu_acerca import MenuAcerca
 
+# Neutralizar la inyección de plugins Qt que realiza OpenCV al importarse
+if "QT_QPA_PLATFORM_PLUGIN_PATH" in os.environ and "cv2" in os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"]:
+    del os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"]
+
 
 def obtener_ruta_icono_app() -> str:
     base = os.path.dirname(os.path.abspath(__file__))
@@ -41,7 +45,7 @@ def obtener_ruta_icono_app() -> str:
     return "gui/icono.png"
 
 
-class PaintNotNet(QMainWindow):
+class pyDCE(QMainWindow):
     @property
     def lienzo(self):
         return getattr(self, 'canvas', None)
@@ -52,7 +56,12 @@ class PaintNotNet(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.settings = QSettings("PaintNotNet", "PaintNotNet")
+        old_settings = QSettings("PaintNotNet", "PaintNotNet")
+        self.settings = QSettings("pyDCE", "pyDCE")
+        if not self.settings.allKeys() and old_settings.allKeys():
+            for key in old_settings.allKeys():
+                self.settings.setValue(key, old_settings.value(key))
+
         geometry = self.settings.value("geometry")
         if geometry:
             self.restoreGeometry(geometry)
@@ -243,7 +252,7 @@ class PaintNotNet(QMainWindow):
             self.resizeDocks(right_docks, sizes, Qt.Orientation.Vertical)
 
     def _cargar_perfil_usuario(self):
-        settings = QSettings("PaintNotNet", "PaintNotNet")
+        settings = self.settings
         saved_vis = settings.value("docks_visible", None)
         if isinstance(saved_vis, dict):
             for attr, is_vis in saved_vis.items():
@@ -273,6 +282,9 @@ class PaintNotNet(QMainWindow):
 
     def reset_panel_layout_and_preferences(self):
         """Restablece la aplicación a 0 (valores de fábrica)."""
+        QSettings("pyDCE", "pyDCE").clear()
+        QSettings("pyDCE", "EffectsPanel").clear()
+        QSettings("pyDCE", "RecentFiles").clear()
         QSettings("PaintNotNet", "PaintNotNet").clear()
         QSettings("PaintNotNet", "EffectsPanel").clear()
         QSettings("PaintNotNet", "RecentFiles").clear()
@@ -340,7 +352,7 @@ class PaintNotNet(QMainWindow):
         area_scroll.setStyleSheet(f"QScrollArea, QScrollArea > QWidget > QWidget {{ background-color: {c_bg}; border: none; }}")
         area_scroll.viewport().setStyleSheet(f"background-color: {c_bg};")
         area_scroll.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        use_gl = QSettings("PaintNotNet", "PaintNotNet").value("use_opengl", True, type=bool)
+        use_gl = self.settings.value("use_opengl", True, type=bool)
         canvas = None
         if use_gl:
             from core.canvas import comprobar_soporte_opengl
@@ -671,7 +683,7 @@ class PaintNotNet(QMainWindow):
             else:
                 nombre = t("Sin Título")
             asterisco = " *" if getattr(self.canvas, 'lienzo_modificado', False) else ""
-            self.setWindowTitle(f"PaintNotNet - {nombre}{asterisco}")
+            self.setWindowTitle(f"pyDCE - {nombre}{asterisco}")
             idx = self._find_tab_index_for_canvas(self.canvas)
             if idx >= 0:
                 self.actualizar_titulo_pestana(idx)
@@ -919,7 +931,7 @@ def obtener_nombre_servidor_unico() -> str:
         usuario = getpass.getuser()
     except Exception:
         usuario = "default_user"
-    return f"PaintNotNet_SingleInstance_Server_{usuario}"
+    return f"pyDCE_SingleInstance_Server_{usuario}"
 
 
 def verificar_instancia_unica(files_to_open: list) -> bool:
@@ -935,7 +947,7 @@ def verificar_instancia_unica(files_to_open: list) -> bool:
     return False
 
 
-def iniciar_servidor_instancia_unica(ventana: PaintNotNet):
+def iniciar_servidor_instancia_unica(ventana: pyDCE):
     server_name = obtener_nombre_servidor_unico()
     QLocalServer.removeServer(server_name)
 
@@ -964,6 +976,10 @@ def iniciar_servidor_instancia_unica(ventana: PaintNotNet):
     return server
 
 
+# Alias para compatibilidad hacia atrás
+PaintNotNet = pyDCE
+
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
@@ -983,10 +999,10 @@ if __name__ == '__main__':
     from core.i18n import I18nManager
 
     app.setWindowIcon(QIcon(obtener_ruta_icono_app()))
-    app.setDesktopFileName("paintnotnet")
+    app.setDesktopFileName("pydce")
     I18nManager().cargar_idioma_configurado()
 
-    ventana = PaintNotNet()
+    ventana = pyDCE()
 
     # Iniciar servidor IPC para recibir solicitudes de apertura de archivos de futuras instancias
     ventana._single_instance_server = iniciar_servidor_instancia_unica(ventana)

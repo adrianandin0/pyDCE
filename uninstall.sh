@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# PaintNotNet - Desinstalador Completo para Linux / Complete Linux Uninstaller
+# pyDCE - Desinstalador Completo para Linux / Complete Linux Uninstaller
 # ==============================================================================
 
 COLOR_BLUE='\033[0;34m'
@@ -18,21 +18,22 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 echo -e "${COLOR_BLUE}==============================================================${COLOR_RESET}"
-echo -e "${COLOR_BLUE}      Desinstalador de PaintNotNet / PaintNotNet Uninstaller  ${COLOR_RESET}"
+echo -e "${COLOR_BLUE}      Desinstalador de pyDCE / pyDCE Uninstaller              ${COLOR_RESET}"
 echo -e "${COLOR_BLUE}==============================================================${COLOR_RESET}"
 echo ""
 
 echo -e "${COLOR_YELLOW}[1/3] Eliminando archivos de la aplicación y ejecutables...${COLOR_RESET}"
-rm -rf /opt/paintnotnet
-rm -f /usr/local/bin/paintnotnet
-rm -f /usr/local/sbin/paintnotnet
+rm -rf /opt/pydce /opt/paintnotnet
+rm -f /usr/local/bin/pydce /usr/local/bin/paintnotnet
+rm -f /usr/local/sbin/pydce /usr/local/sbin/paintnotnet
 
 echo -e "${COLOR_YELLOW}[2/3] Eliminando accesos directos, íconos y asociaciones MIME...${COLOR_RESET}"
-rm -f /usr/share/applications/PaintNotNet.desktop
-rm -f /usr/share/pixmaps/paintnotnet.png
-rm -f /usr/share/mime/packages/paintnotnet.xml
+rm -f /usr/share/applications/pydce.desktop /usr/share/applications/PaintNotNet.desktop
+rm -f /usr/share/pixmaps/pydce.png /usr/share/pixmaps/paintnotnet.png
+rm -f /usr/share/mime/packages/pydce.xml /usr/share/mime/packages/paintnotnet.xml
 
 for sz in 16x16 32x32 48x48 64x64 128x128 256x256 512x512; do
+    rm -f "/usr/share/icons/hicolor/${sz}/apps/pydce.png"
     rm -f "/usr/share/icons/hicolor/${sz}/apps/paintnotnet.png"
 done
 
@@ -61,6 +62,6 @@ fi
 
 echo ""
 echo -e "${COLOR_GREEN}==============================================================${COLOR_RESET}"
-echo -e "${COLOR_GREEN}  PaintNotNet ha sido desinstalado por completo del sistema.${COLOR_RESET}"
+echo -e "${COLOR_GREEN}  pyDCE ha sido desinstalado por completo del sistema.${COLOR_RESET}"
 echo -e "${COLOR_GREEN}==============================================================${COLOR_RESET}"
 echo ""

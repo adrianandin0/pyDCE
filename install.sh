@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# PaintNotNet v1.0.9dev - Instalador Universal para Distribuciones Linux
+# pyDCE v1.0.9dev - Instalador Universal para Distribuciones Linux
 # (Debian, Ubuntu, Linux Mint, Fedora, RHEL, CentOS, Arch, Manjaro, openSUSE, etc.)
 # ==============================================================================
 
@@ -22,7 +22,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 echo -e "${COLOR_BLUE}==============================================================${COLOR_RESET}"
-echo -e "${COLOR_BLUE}        PaintNotNet v1.0.9dev - Linux Installer / Instalador ${COLOR_RESET}"
+echo -e "${COLOR_BLUE}        pyDCE v1.0.9dev - Linux Installer / Instalador        ${COLOR_RESET}"
 echo -e "${COLOR_BLUE}==============================================================${COLOR_RESET}"
 echo ""
 
@@ -52,8 +52,8 @@ esac
 
 echo ""
 if [ "$SELECTED_LANG" = "English" ]; then
-    HEADER_TITLE="         PaintNotNet Installer for Linux                    "
-    MSG_COMPILING="[i] Compiling the latest version of PaintNotNet..."
+    HEADER_TITLE="         pyDCE Installer for Linux                            "
+    MSG_COMPILING="[i] Compiling the latest version of pyDCE..."
     MSG_NO_PYINSTALLER="[i] Installing Python dependencies & PyInstaller..."
     MSG_STEP1="[1/4] Checking system dependencies (Python / Pip / Qt6 / OpenGL)..."
     MSG_DISTRO_DEBIAN="      Debian/Ubuntu based distribution detected (apt)."
@@ -63,17 +63,17 @@ if [ "$SELECTED_LANG" = "English" ]; then
     MSG_STEP2="[2/4] Installing application files in"
     MSG_STEP3="[3/4] Creating desktop shortcuts and installing system icons..."
     MSG_STEP4="[4/4] Finalizing installation..."
-    MSG_SUCCESS="      PaintNotNet installed successfully!                   "
+    MSG_SUCCESS="      pyDCE installed successfully!                          "
     MSG_LAUNCH=" You can launch the application from:"
-    MSG_LAUNCH_1="   1. Your system application menu (Graphics -> PaintNotNet)"
+    MSG_LAUNCH_1="   1. Your system application menu (Graphics -> pyDCE)"
     MSG_LAUNCH_2="   2. Or typing in any terminal:"
     MSG_UNINSTALL=" To uninstall the program in the future, run:"
-    MSG_UNINSTALL_DONE="PaintNotNet has been completely uninstalled from the system."
+    MSG_UNINSTALL_DONE="pyDCE has been completely uninstalled from the system."
     MSG_DESKTOP_COMMENT="Lightweight, powerful, and modern image editor for Linux"
-    MSG_MIME_COMMENT="PaintNotNet Image Project"
+    MSG_MIME_COMMENT="pyDCE Image Project"
 elif [ "$SELECTED_LANG" = "Português" ]; then
-    HEADER_TITLE="         Instalador do PaintNotNet para Linux                "
-    MSG_COMPILING="[i] Compilando a versão mais recente do PaintNotNet..."
+    HEADER_TITLE="         Instalador do pyDCE para Linux                       "
+    MSG_COMPILING="[i] Compilando a versão mais recente do pyDCE..."
     MSG_NO_PYINSTALLER="[i] Instalando dependências do Python e PyInstaller..."
     MSG_STEP1="[1/4] Verificando dependências do sistema (Python / Pip / Qt6 / OpenGL)..."
     MSG_DISTRO_DEBIAN="      Distribuição baseada em Debian/Ubuntu detectada (apt)."
@@ -83,17 +83,17 @@ elif [ "$SELECTED_LANG" = "Português" ]; then
     MSG_STEP2="[2/4] Instalando arquivos do programa em"
     MSG_STEP3="[3/4] Criando atalhos na área de trabalho e ícones do sistema..."
     MSG_STEP4="[4/4] Finalizando instalação..."
-    MSG_SUCCESS="      O PaintNotNet foi instalado com sucesso!               "
+    MSG_SUCCESS="      O pyDCE foi instalado com sucesso!                      "
     MSG_LAUNCH=" Você pode iniciar o aplicativo a partir de:"
-    MSG_LAUNCH_1="   1. Menu de aplicativos do sistema (Gráficos -> PaintNotNet)"
+    MSG_LAUNCH_1="   1. Menu de aplicativos do sistema (Gráficos -> pyDCE)"
     MSG_LAUNCH_2="   2. Ou digitando em qualquer terminal:"
     MSG_UNINSTALL=" Para desinstalar o programa no futuro, execute:"
-    MSG_UNINSTALL_DONE="O PaintNotNet foi completamente desinstalado do sistema."
+    MSG_UNINSTALL_DONE="O pyDCE foi completamente desinstalado do sistema."
     MSG_DESKTOP_COMMENT="Editor de imagens leve, potente e moderno para Linux"
-    MSG_MIME_COMMENT="Projeto de Imagem PaintNotNet"
+    MSG_MIME_COMMENT="Projeto de Imagem pyDCE"
 elif [ "$SELECTED_LANG" = "Français" ]; then
-    HEADER_TITLE="         Installeur de PaintNotNet pour Linux                "
-    MSG_COMPILING="[i] Compilation de la dernière version de PaintNotNet..."
+    HEADER_TITLE="         Installeur de pyDCE pour Linux                       "
+    MSG_COMPILING="[i] Compilation de la dernière version de pyDCE..."
     MSG_NO_PYINSTALLER="[i] Installation des dépendances Python et PyInstaller..."
     MSG_STEP1="[1/4] Vérification des dépendances système (Python / Pip / Qt6 / OpenGL)..."
     MSG_DISTRO_DEBIAN="      Distribution basée sur Debian/Ubuntu détectée (apt)."
@@ -103,17 +103,17 @@ elif [ "$SELECTED_LANG" = "Français" ]; then
     MSG_STEP2="[2/4] Installation des fichiers de l'application dans"
     MSG_STEP3="[3/4] Création des raccourcis et installation des icônes du système..."
     MSG_STEP4="[4/4] Finalisation de l'installation..."
-    MSG_SUCCESS="      PaintNotNet a été installé avec succès !               "
+    MSG_SUCCESS="      pyDCE a été installé avec succès !                      "
     MSG_LAUNCH=" Vous pouvez lancer l'application depuis :"
-    MSG_LAUNCH_1="   1. Le menu d'applications système (Graphisme -> PaintNotNet)"
+    MSG_LAUNCH_1="   1. Le menu d'applications système (Graphisme -> pyDCE)"
     MSG_LAUNCH_2="   2. Ou en tapant dans n'importe quel terminal :"
     MSG_UNINSTALL=" Pour désinstaller le programme à l'avenir, exécutez :"
-    MSG_UNINSTALL_DONE="PaintNotNet a été complètement désinstallé du système."
+    MSG_UNINSTALL_DONE="pyDCE a été complètement désinstallé du système."
     MSG_DESKTOP_COMMENT="Éditeur d'images léger, puissant et moderne pour Linux"
-    MSG_MIME_COMMENT="Projet d'image PaintNotNet"
+    MSG_MIME_COMMENT="Projet d'image pyDCE"
 else
-    HEADER_TITLE="         Instalador de PaintNotNet para Linux                "
-    MSG_COMPILING="[i] Compilando la versión más reciente de PaintNotNet..."
+    HEADER_TITLE="         Instalador de pyDCE para Linux                       "
+    MSG_COMPILING="[i] Compilando la versión más reciente de pyDCE..."
     MSG_NO_PYINSTALLER="[i] Instalando dependencias de Python y PyInstaller..."
     MSG_STEP1="[1/4] Verificando dependencias del sistema (Python / Pip / Qt6 / OpenGL)..."
     MSG_DISTRO_DEBIAN="      Distribución basada en Debian/Ubuntu detectada (apt)."
@@ -123,14 +123,14 @@ else
     MSG_STEP2="[2/4] Instalando archivos del programa en"
     MSG_STEP3="[3/4] Creando accesos directos e instalando íconos del sistema..."
     MSG_STEP4="[4/4] Finalizando instalación..."
-    MSG_SUCCESS="      ¡PaintNotNet se ha instalado exitosamente!             "
+    MSG_SUCCESS="      ¡pyDCE se ha instalado exitosamente!                    "
     MSG_LAUNCH=" Puedes iniciar la aplicación desde:"
-    MSG_LAUNCH_1="   1. El menú de aplicaciones de tu sistema (Gráficos -> PaintNotNet)"
+    MSG_LAUNCH_1="   1. El menú de aplicaciones de tu sistema (Gráficos -> pyDCE)"
     MSG_LAUNCH_2="   2. O escribiendo en cualquier terminal:"
     MSG_UNINSTALL=" Para desinstalar el programa en el futuro, ejecuta:"
-    MSG_UNINSTALL_DONE="PaintNotNet ha sido desinstalado por completo del sistema."
+    MSG_UNINSTALL_DONE="pyDCE ha sido desinstalado por completo del sistema."
     MSG_DESKTOP_COMMENT="Editor de imágenes liviano, potente y moderno para Linux"
-    MSG_MIME_COMMENT="Proyecto de Imagen PaintNotNet"
+    MSG_MIME_COMMENT="Proyecto de Imagen pyDCE"
 fi
 
 echo -e "${COLOR_BLUE}==============================================================${COLOR_RESET}"
@@ -140,7 +140,7 @@ echo ""
 
 # Ubicación actual del script y paquete fuente
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APP_SOURCE="${SCRIPT_DIR}/dist_pkg/PaintNotNet"
+APP_SOURCE="${SCRIPT_DIR}/dist_pkg/pyDCE"
 
 # Limpiar carpetas de compilaciones antiguas que requerían root
 rm -rf "${SCRIPT_DIR}/build" "${SCRIPT_DIR}/dist" "${SCRIPT_DIR}/build_pkg" "${SCRIPT_DIR}/dist_pkg"
@@ -199,61 +199,72 @@ if [ -z "$PYINSTALLER_BIN" ]; then
 fi
 
 echo -e "${COLOR_YELLOW}${MSG_COMPILING}${COLOR_RESET}"
-"$PYINSTALLER_BIN" --noconfirm --clean --workpath "${SCRIPT_DIR}/build_pkg" --distpath "${SCRIPT_DIR}/dist_pkg" "${SCRIPT_DIR}/PaintNotNet.spec"
+"$PYINSTALLER_BIN" --noconfirm --clean --workpath "${SCRIPT_DIR}/build_pkg" --distpath "${SCRIPT_DIR}/dist_pkg" "${SCRIPT_DIR}/pyDCE.spec"
 
-# 4. Copiar la aplicación a /opt/paintnotnet
-INSTALL_DIR="/opt/paintnotnet"
+# 4. Copiar la aplicación a /opt/pydce
+INSTALL_DIR="/opt/pydce"
 echo -e "${COLOR_YELLOW}${MSG_STEP2} ${INSTALL_DIR}...${COLOR_RESET}"
 
-rm -rf "$INSTALL_DIR"
+rm -rf "$INSTALL_DIR" /opt/paintnotnet
 mkdir -p "$INSTALL_DIR"
 cp -r "${APP_SOURCE}"/* "$INSTALL_DIR"/
 
-chmod +x "${INSTALL_DIR}/PaintNotNet"
+chmod +x "${INSTALL_DIR}/pyDCE"
 
 # Crear enlace simbólico en /usr/local/bin y limpiar accesos antiguos en sbin
-rm -f /usr/local/sbin/paintnotnet
+rm -f /usr/local/sbin/pydce /usr/local/sbin/paintnotnet
 mkdir -p /usr/local/bin
-ln -sf "${INSTALL_DIR}/PaintNotNet" /usr/local/bin/paintnotnet
+ln -sf "${INSTALL_DIR}/pyDCE" /usr/local/bin/pydce
+ln -sf "${INSTALL_DIR}/pyDCE" /usr/local/bin/paintnotnet
 
 # 5. Integración con el escritorio (.desktop, iconos y mime)
 echo -e "${COLOR_YELLOW}${MSG_STEP3}${COLOR_RESET}"
 
 # Copiar icono a las rutas de iconos estándar del sistema freedesktop (hicolor y pixmaps)
 mkdir -p /usr/share/pixmaps
+cp "${SCRIPT_DIR}/gui/icono.png" /usr/share/pixmaps/pydce.png
 cp "${SCRIPT_DIR}/gui/icono.png" /usr/share/pixmaps/paintnotnet.png
 
 for sz in 16x16 32x32 48x48 64x64 128x128 256x256 512x512; do
     mkdir -p "/usr/share/icons/hicolor/${sz}/apps"
+    cp "${SCRIPT_DIR}/gui/icono.png" "/usr/share/icons/hicolor/${sz}/apps/pydce.png"
     cp "${SCRIPT_DIR}/gui/icono.png" "/usr/share/icons/hicolor/${sz}/apps/paintnotnet.png"
 done
 
 # Registrar MIME Type .pnn en el sistema
 mkdir -p /usr/share/mime/packages
-cat <<EOF > /usr/share/mime/packages/paintnotnet.xml
+cat <<EOF > /usr/share/mime/packages/pydce.xml
 <?xml version="1.0" encoding="UTF-8"?>
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-pydce">
+    <comment>${MSG_MIME_COMMENT}</comment>
+    <glob pattern="*.pnn"/>
+    <glob pattern="*.PNN"/>
+    <icon name="pydce"/>
+  </mime-type>
   <mime-type type="application/x-paintnotnet">
     <comment>${MSG_MIME_COMMENT}</comment>
     <glob pattern="*.pnn"/>
     <glob pattern="*.PNN"/>
-    <icon name="paintnotnet"/>
+    <icon name="pydce"/>
   </mime-type>
 </mime-info>
 EOF
 
-DESKTOP_FILE="/usr/share/applications/PaintNotNet.desktop"
+rm -f /usr/share/applications/PaintNotNet.desktop
+DESKTOP_FILE="/usr/share/applications/pydce.desktop"
 cat <<EOF > "$DESKTOP_FILE"
 [Desktop Entry]
-Name=PaintNotNet
+Name=pyDCE
 Comment=${MSG_DESKTOP_COMMENT}
-Exec=/usr/local/bin/paintnotnet %F
-Icon=paintnotnet
+Exec=/usr/local/bin/pydce %F
+Icon=pydce
 Terminal=false
 Type=Application
 Categories=Graphics;2DGraphics;RasterGraphics;GTK;Qt;
-MimeType=image/png;image/jpeg;image/bmp;image/webp;application/x-paintnotnet;
-Keywords=paint;editor;image;drawing;dibujo;capas;pnn;
+MimeType=image/png;image/jpeg;image/bmp;image/webp;application/x-pydce;application/x-paintnotnet;image/pnn;
+Keywords=paint;editor;image;drawing;dibujo;capas;pnn;pydce;
+StartupWMClass=pyDCE
 EOF
 
 chmod 644 "$DESKTOP_FILE"
@@ -282,24 +293,26 @@ if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ]; then
     su - "$REAL_USER" -c "kbuildsycoca6 --noincremental &> /dev/null || kbuildsycoca5 --noincremental &> /dev/null || true" &> /dev/null || true
 fi
 
-# Configurar PaintNotNet como la aplicación predeterminada para archivos .pnn
+# Configurar pyDCE como la aplicación predeterminada para archivos .pnn
 if command -v xdg-mime &> /dev/null; then
-    xdg-mime default PaintNotNet.desktop application/x-paintnotnet &> /dev/null || true
-    xdg-mime default PaintNotNet.desktop image/pnn &> /dev/null || true
+    xdg-mime default pydce.desktop application/x-pydce &> /dev/null || true
+    xdg-mime default pydce.desktop application/x-paintnotnet &> /dev/null || true
+    xdg-mime default pydce.desktop image/pnn &> /dev/null || true
 
     REAL_USER="${SUDO_USER:-$USER}"
     if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ]; then
-        su - "$REAL_USER" -c "xdg-mime default PaintNotNet.desktop application/x-paintnotnet &> /dev/null || true" &> /dev/null || true
-        su - "$REAL_USER" -c "xdg-mime default PaintNotNet.desktop image/pnn &> /dev/null || true" &> /dev/null || true
+        su - "$REAL_USER" -c "xdg-mime default pydce.desktop application/x-pydce &> /dev/null || true" &> /dev/null || true
+        su - "$REAL_USER" -c "xdg-mime default pydce.desktop application/x-paintnotnet &> /dev/null || true" &> /dev/null || true
+        su - "$REAL_USER" -c "xdg-mime default pydce.desktop image/pnn &> /dev/null || true" &> /dev/null || true
     fi
 fi
 
-# Configurar el idioma seleccionado en las preferencias del usuario (~/.config/PaintNotNet/PaintNotNet.conf)
+# Configurar el idioma seleccionado en las preferencias del usuario (~/.config/pyDCE/pyDCE.conf)
 REAL_USER="${SUDO_USER:-$USER}"
 if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ]; then
     USER_HOME="$(eval echo "~$REAL_USER")"
-    CONFIG_DIR="${USER_HOME}/.config/PaintNotNet"
-    CONFIG_FILE="${CONFIG_DIR}/PaintNotNet.conf"
+    CONFIG_DIR="${USER_HOME}/.config/pyDCE"
+    CONFIG_FILE="${CONFIG_DIR}/pyDCE.conf"
 
     mkdir -p "$CONFIG_DIR"
 
@@ -325,7 +338,7 @@ UNINSTALL_SCRIPT="${INSTALL_DIR}/uninstall.sh"
 cat <<EOF > "$UNINSTALL_SCRIPT"
 #!/usr/bin/env bash
 # ==============================================================================
-# PaintNotNet - Desinstalador Completo para Linux / Complete Linux Uninstaller
+# pyDCE - Desinstalador Completo para Linux / Complete Linux Uninstaller
 # ==============================================================================
 
 COLOR_BLUE='\033[0;34m'
@@ -343,21 +356,22 @@ if [ "\$EUID" -ne 0 ]; then
 fi
 
 echo -e "\${COLOR_BLUE}==============================================================\${COLOR_RESET}"
-echo -e "\${COLOR_BLUE}      Desinstalador de PaintNotNet / PaintNotNet Uninstaller  \${COLOR_RESET}"
+echo -e "\${COLOR_BLUE}      Desinstalador de pyDCE / pyDCE Uninstaller              \${COLOR_RESET}"
 echo -e "\${COLOR_BLUE}==============================================================\${COLOR_RESET}"
 echo ""
 
 echo -e "\${COLOR_YELLOW}[1/3] Eliminando archivos de la aplicación y ejecutables...\${COLOR_RESET}"
-rm -rf /opt/paintnotnet
-rm -f /usr/local/bin/paintnotnet
-rm -f /usr/local/sbin/paintnotnet
+rm -rf /opt/pydce /opt/paintnotnet
+rm -f /usr/local/bin/pydce /usr/local/bin/paintnotnet
+rm -f /usr/local/sbin/pydce /usr/local/sbin/paintnotnet
 
 echo -e "\${COLOR_YELLOW}[2/3] Eliminando accesos directos, íconos y asociaciones MIME...\${COLOR_RESET}"
-rm -f /usr/share/applications/PaintNotNet.desktop
-rm -f /usr/share/pixmaps/paintnotnet.png
-rm -f /usr/share/mime/packages/paintnotnet.xml
+rm -f /usr/share/applications/pydce.desktop /usr/share/applications/PaintNotNet.desktop
+rm -f /usr/share/pixmaps/pydce.png /usr/share/pixmaps/paintnotnet.png
+rm -f /usr/share/mime/packages/pydce.xml /usr/share/mime/packages/paintnotnet.xml
 
 for sz in 16x16 32x32 48x48 64x64 128x128 256x256 512x512; do
+    rm -f "/usr/share/icons/hicolor/\${sz}/apps/pydce.png"
     rm -f "/usr/share/icons/hicolor/\${sz}/apps/paintnotnet.png"
 done
 

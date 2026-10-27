@@ -27,10 +27,13 @@ def notificar_cambio_custom_slots():
                 print(f"[ColorPanel] Error actualizando slots: {e}")
 
 def cargar_custom_colors():
-    settings = QSettings("PaintNotNet", "CustomColors")
+    settings = QSettings("pyDCE", "CustomColors")
+    legacy = QSettings("PaintNotNet", "CustomColors")
     colors = []
     for i in range(21):
         val = settings.value(f"slot_{i}", None)
+        if val is None:
+            val = legacy.value(f"slot_{i}", None)
         if val:
             c = QColor(val)
             colors.append(c if c.isValid() else None)
@@ -39,7 +42,7 @@ def cargar_custom_colors():
     return colors
 
 def guardar_custom_colors(colors_list):
-    settings = QSettings("PaintNotNet", "CustomColors")
+    settings = QSettings("pyDCE", "CustomColors")
     for i in range(21):
         if i < len(colors_list) and colors_list[i] and colors_list[i].isValid():
             settings.setValue(f"slot_{i}", colors_list[i].name(QColor.NameFormat.HexArgb))

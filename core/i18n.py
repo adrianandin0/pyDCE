@@ -35,8 +35,10 @@ class I18nManager:
         return os.path.join(base_dir, "locales")
 
     def cargar_idioma_configurado(self):
-        settings = QSettings("PaintNotNet", "PaintNotNet")
-        lang = settings.value("language", "Español")
+        settings = QSettings("pyDCE", "pyDCE")
+        lang = settings.value("language", None)
+        if lang is None:
+            lang = QSettings("PaintNotNet", "PaintNotNet").value("language", "Español")
         self.establecer_idioma(str(lang))
 
     def establecer_idioma(self, nombre_idioma):

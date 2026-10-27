@@ -1,5 +1,5 @@
 """
-gui/bottom_status_bar.py — Barra inferior estática para PaintNotNet.
+gui/bottom_status_bar.py — Barra inferior estática para pyDCE.
 Contiene:
 - Cuadrícula de píxeles (conmutador)
 - Botones de alineación de selección (Izquierda, Derecha, Arriba, Abajo, Centrar)
@@ -28,7 +28,13 @@ class BottomStatusBarWidget(QWidget):
         layout.setSpacing(6)
 
         from PyQt6.QtCore import QSettings
-        self.settings = QSettings("PaintNotNet", "PaintNotNet")
+        self.settings = QSettings("pyDCE", "pyDCE")
+        if not self.settings.contains("show_pixel_grid"):
+            legacy = QSettings("PaintNotNet", "PaintNotNet")
+            if legacy.contains("show_pixel_grid"):
+                for k in legacy.allKeys():
+                    if not self.settings.contains(k):
+                        self.settings.setValue(k, legacy.value(k))
 
         # 1. Opción Cuadrícula y Reglas
         self.chk_grid = QCheckBox(t("Cuadrícula"))

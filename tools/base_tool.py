@@ -1,5 +1,5 @@
 class BaseTool:
-    """Clase base para todas las herramientas de PaintNotNet."""
+    """Clase base para todas las herramientas de pyDCE."""
     def __init__(self, name="Base", icon_path="gui/iconos/default.png"):
         self.name = name
         self.icon_path = icon_path

@@ -27,19 +27,19 @@ def obtener_version():
 
 
 class DialogoAcerca(QDialog):
-    """Diálogo 'Acerca de' de PaintNotNet con i18n y scroll adaptable."""
+    """Diálogo 'Acerca de' de pyDCE con i18n y scroll adaptable."""
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle(t("Acerca de PaintNotNet"))
+        self.setWindowTitle(t("Acerca de pyDCE"))
         self.setFixedSize(540, 480)
 
         layout = QVBoxLayout()
         layout.setContentsMargins(20, 18, 20, 18)
         layout.setSpacing(12)
 
-        lbl_titulo = QLabel("PaintNotNet")
+        lbl_titulo = QLabel("<b>pyDCE</b>: <b>Py</b>thon <b>D</b>igital <b>C</b>anvas <b>E</b>ditor")
         lbl_titulo.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        lbl_titulo.setStyleSheet("font-size: 22px; font-weight: bold; color: #00AAFF;")
+        lbl_titulo.setStyleSheet("font-size: 18px; color: #00AAFF;")
         layout.addWidget(lbl_titulo)
 
         version_val = obtener_version()
@@ -81,7 +81,9 @@ class DialogoAcerca(QDialog):
         lbl_body = QLabel(html_content)
         lbl_body.setStyleSheet(f"color: {txt_col}; background-color: {bg_col};")
         lbl_body.setWordWrap(True)
-        lbl_body.setOpenExternalLinks(True)
+        lbl_body.setOpenExternalLinks(False)
+        from core.system_utils import abrir_url_externa
+        lbl_body.linkActivated.connect(lambda link: abrir_url_externa(link, self))
         lbl_body.setAlignment(Qt.AlignmentFlag.AlignLeft)
         scroll_layout.addWidget(lbl_body)
 

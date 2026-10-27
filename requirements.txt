@@ -1,5 +1,5 @@
 # ==============================================================================
-# PaintNotNet v1.0.9dev — Archivo de Requerimientos Completo
+# pyDCE v1.0.9dev — Archivo de Requerimientos Completo
 # Full Requirements File — Linux & Windows
 # ==============================================================================
 #

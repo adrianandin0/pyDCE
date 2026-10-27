@@ -54,7 +54,7 @@ def _mostrar_error_carga(canvas, mensaje: str):
 
 def guardar_proyecto_pnn(canvas, ruta_archivo):
     """
-    Guarda el proyecto completo de PaintNotNet en formato nativo .pnn (ZIP).
+    Guarda el proyecto completo de pyDCE en formato nativo .pnn (ZIP).
     Contiene:
     - manifest.json: metadatos del proyecto, checksum SHA-256, versionado y lista de capas.
     - layer_0.png, layer_1.png...: imágenes PNG individuales por capa en RGBA32.
@@ -70,7 +70,7 @@ def guardar_proyecto_pnn(canvas, ruta_archivo):
         dpi_config = {"x": dpi_config[0], "y": dpi_config[1]}
 
     manifest = {
-        "format": "PaintNotNet Project",
+        "format": "pyDCE Project",
         "format_version": CURRENT_FORMAT_VERSION,
         "app_version": _obtener_version_app(),
         "created_at": created_at,
@@ -164,7 +164,7 @@ def cargar_proyecto_pnn(canvas, ruta_archivo):
             # 2. Validación de Versionado del Formato
             format_ver = manifest.get("format_version", 1)
             if format_ver > CURRENT_FORMAT_VERSION:
-                msg = t("El proyecto fue guardado con una versión superior del formato (%1). Por favor actualiza PaintNotNet.").replace("%1", str(format_ver))
+                msg = t("El proyecto fue guardado con una versión superior del formato (%1). Por favor actualiza pyDCE.").replace("%1", str(format_ver))
                 _mostrar_error_carga(canvas, msg)
                 return False
 
