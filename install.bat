@@ -63,6 +63,12 @@ if exist "venv\Scripts\pyinstaller.exe" (
 ) else (
     pyinstaller --noconfirm --clean --workpath build_pkg --distpath dist_pkg pyDCE.spec
 )
+if errorlevel 1 (
+    echo.
+    echo [!] Error: Falló la compilación con PyInstaller.
+    pause
+    exit /b 1
+)
 
 :: 3. Definir carpeta de instalación del usuario (%LOCALAPPDATA%\pyDCE)
 set "INSTALL_DIR=%LOCALAPPDATA%\pyDCE"

@@ -5,21 +5,33 @@ import sys
 
 block_cipher = None
 
+extra_datas = [
+    ('gui/iconos', 'gui/iconos'),
+    ('locales', 'locales'),
+    ('version.txt', '.'),
+]
+for icon_name in ['pyDCE.png', 'pydce.png', 'pyDCE.ico', 'pydce.ico', 'icono.png', 'paintdotnet.ico']:
+    icon_path = os.path.join('gui', icon_name)
+    if os.path.exists(icon_path):
+        extra_datas.append((icon_path, 'gui'))
+
+app_icon = None
+if sys.platform == 'win32':
+    for candidate in ['gui/pyDCE.ico', 'gui/pydce.ico', 'gui/paintdotnet.ico']:
+        if os.path.exists(candidate):
+            app_icon = candidate
+            break
+else:
+    for candidate in ['gui/pyDCE.png', 'gui/pydce.png', 'gui/icono.png']:
+        if os.path.exists(candidate):
+            app_icon = candidate
+            break
+
 a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[
-        ('gui/iconos', 'gui/iconos'),
-        ('gui/pyDCE.png', 'gui'),
-        ('gui/pydce.png', 'gui'),
-        ('gui/pyDCE.ico', 'gui'),
-        ('gui/pydce.ico', 'gui'),
-        ('gui/icono.png', 'gui'),
-        ('gui/paintdotnet.ico', 'gui'),
-        ('locales', 'locales'),
-        ('version.txt', '.'),
-    ],
+    datas=extra_datas,
     hiddenimports=[
         'PyQt6',
         'PyQt6.QtCore',
@@ -60,7 +72,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='gui/pyDCE.ico' if sys.platform == 'win32' else 'gui/pyDCE.png',
+    icon=app_icon,
 )
 
 coll = COLLECT(
