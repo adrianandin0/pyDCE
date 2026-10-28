@@ -1,0 +1,7 @@
+# Forzar finales de línea CRLF en scripts de Windows
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.iss text eol=crlf
+
+# Forzar finales de línea LF en scripts de Linux
+*.sh text eol=lf

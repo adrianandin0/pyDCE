@@ -3,7 +3,7 @@ chcp 65001 > NUL
 setlocal enabledelayedexpansion
 
 echo ==============================================================
-echo         Instalador de pyDCE v1.0.9dev para Windows
+echo         Instalador de pyDCE v1.1.2 para Windows
 echo ==============================================================
 echo.
 
