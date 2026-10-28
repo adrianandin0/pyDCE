@@ -11,6 +11,10 @@ a = Analysis(
     binaries=[],
     datas=[
         ('gui/iconos', 'gui/iconos'),
+        ('gui/pyDCE.png', 'gui'),
+        ('gui/pydce.png', 'gui'),
+        ('gui/pyDCE.ico', 'gui'),
+        ('gui/pydce.ico', 'gui'),
         ('gui/icono.png', 'gui'),
         ('gui/paintdotnet.ico', 'gui'),
         ('locales', 'locales'),
@@ -56,7 +60,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='gui/paintdotnet.ico' if sys.platform == 'win32' else 'gui/icono.png',
+    icon='gui/pyDCE.ico' if sys.platform == 'win32' else 'gui/pyDCE.png',
 )
 
 coll = COLLECT(

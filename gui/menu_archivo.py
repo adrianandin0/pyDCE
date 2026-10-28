@@ -420,8 +420,11 @@ class MenuArchivo:
 
         for idx, ruta in enumerate(recientes_validos, 1):
             nombre = os.path.basename(ruta)
-            ext = os.path.splitext(ruta)[1].lower()
-            icono = QIcon("gui/iconos/pnn.png") if ext == ".pnn" else QIcon("gui/iconos/picture.png")
+            if ext == ".pnn":
+                icono_path = "gui/iconos/pyDCE.png" if os.path.exists("gui/iconos/pyDCE.png") else "gui/iconos/pnn.png"
+                icono = QIcon(icono_path)
+            else:
+                icono = QIcon("gui/iconos/picture.png")
             action = self.menu_recientes.addAction(icono, f"{idx}. {nombre}")
             action.setToolTip(ruta)
             action.triggered.connect(_make_reciente_handler(ruta))

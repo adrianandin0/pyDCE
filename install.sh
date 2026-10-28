@@ -222,13 +222,24 @@ echo -e "${COLOR_YELLOW}${MSG_STEP3}${COLOR_RESET}"
 
 # Copiar icono a las rutas de iconos estándar del sistema freedesktop (hicolor y pixmaps)
 mkdir -p /usr/share/pixmaps
-cp "${SCRIPT_DIR}/gui/icono.png" /usr/share/pixmaps/pydce.png
-cp "${SCRIPT_DIR}/gui/icono.png" /usr/share/pixmaps/paintnotnet.png
+ICON_SRC="${SCRIPT_DIR}/gui/pyDCE.png"
+if [ ! -f "$ICON_SRC" ]; then
+    if [ -f "${SCRIPT_DIR}/gui/pydce.png" ]; then
+        ICON_SRC="${SCRIPT_DIR}/gui/pydce.png"
+    else
+        ICON_SRC="${SCRIPT_DIR}/gui/icono.png"
+    fi
+fi
+
+cp "$ICON_SRC" /usr/share/pixmaps/pydce.png
+cp "$ICON_SRC" /usr/share/pixmaps/pyDCE.png
+cp "$ICON_SRC" /usr/share/pixmaps/paintnotnet.png
 
 for sz in 16x16 32x32 48x48 64x64 128x128 256x256 512x512; do
     mkdir -p "/usr/share/icons/hicolor/${sz}/apps"
-    cp "${SCRIPT_DIR}/gui/icono.png" "/usr/share/icons/hicolor/${sz}/apps/pydce.png"
-    cp "${SCRIPT_DIR}/gui/icono.png" "/usr/share/icons/hicolor/${sz}/apps/paintnotnet.png"
+    cp "$ICON_SRC" "/usr/share/icons/hicolor/${sz}/apps/pydce.png"
+    cp "$ICON_SRC" "/usr/share/icons/hicolor/${sz}/apps/pyDCE.png"
+    cp "$ICON_SRC" "/usr/share/icons/hicolor/${sz}/apps/paintnotnet.png"
 done
 
 # Registrar MIME Type .pnn en el sistema

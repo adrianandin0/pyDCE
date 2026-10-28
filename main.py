@@ -34,15 +34,22 @@ if "QT_QPA_PLATFORM_PLUGIN_PATH" in os.environ and "cv2" in os.environ["QT_QPA_P
 def obtener_ruta_icono_app() -> str:
     base = os.path.dirname(os.path.abspath(__file__))
     posibles = [
+        os.path.join(base, "gui", "pyDCE.ico"),
+        os.path.join(base, "gui", "pydce.ico"),
+        os.path.join(base, "gui", "pyDCE.png"),
+        os.path.join(base, "gui", "pydce.png"),
         os.path.join(base, "gui", "icono.png"),
+        os.path.join(base, "gui", "iconos", "pyDCE.ico"),
+        os.path.join(base, "gui", "iconos", "pydce.ico"),
         os.path.join(base, "gui", "paintdotnet.ico"),
         os.path.join(base, "gui", "iconos", "paintdotnet.ico"),
+        "/usr/share/pixmaps/pydce.png",
         "/usr/share/pixmaps/paintnotnet.png"
     ]
     for ruta in posibles:
         if os.path.exists(ruta):
             return ruta
-    return "gui/icono.png"
+    return "gui/pyDCE.png" if os.path.exists(os.path.join(base, "gui", "pyDCE.png")) else "gui/icono.png"
 
 
 class pyDCE(QMainWindow):

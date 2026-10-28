@@ -75,14 +75,25 @@ xcopy /E /Y /I "dist_pkg\pyDCE\*" "%INSTALL_DIR%\"
 :: Copiar expresamente el archivo de icono .ico a la raíz, gui/ y gui/iconos/
 mkdir "%INSTALL_DIR%\gui" 2>nul
 mkdir "%INSTALL_DIR%\gui\iconos" 2>nul
-if exist "gui\paintdotnet.ico" (
+if exist "gui\pyDCE.ico" (
+    copy /Y "gui\pyDCE.ico" "%INSTALL_DIR%\pyDCE.ico"
+    copy /Y "gui\pyDCE.ico" "%INSTALL_DIR%\pydce.ico"
+    copy /Y "gui\pyDCE.ico" "%INSTALL_DIR%\paintdotnet.ico"
+    copy /Y "gui\pyDCE.ico" "%INSTALL_DIR%\gui\pyDCE.ico"
+    copy /Y "gui\pyDCE.ico" "%INSTALL_DIR%\gui\pydce.ico"
+    copy /Y "gui\pyDCE.ico" "%INSTALL_DIR%\gui\iconos\pyDCE.ico"
+    copy /Y "gui\pyDCE.ico" "%INSTALL_DIR%\gui\iconos\pydce.ico"
+) else if exist "%~dp0gui\pyDCE.ico" (
+    copy /Y "%~dp0gui\pyDCE.ico" "%INSTALL_DIR%\pyDCE.ico"
+    copy /Y "%~dp0gui\pyDCE.ico" "%INSTALL_DIR%\pydce.ico"
+    copy /Y "%~dp0gui\pyDCE.ico" "%INSTALL_DIR%\paintdotnet.ico"
+    copy /Y "%~dp0gui\pyDCE.ico" "%INSTALL_DIR%\gui\pyDCE.ico"
+    copy /Y "%~dp0gui\pyDCE.ico" "%INSTALL_DIR%\gui\pydce.ico"
+    copy /Y "%~dp0gui\pyDCE.ico" "%INSTALL_DIR%\gui\iconos\pyDCE.ico"
+    copy /Y "%~dp0gui\pyDCE.ico" "%INSTALL_DIR%\gui\iconos\pydce.ico"
+) else if exist "gui\paintdotnet.ico" (
+    copy /Y "gui\paintdotnet.ico" "%INSTALL_DIR%\pyDCE.ico"
     copy /Y "gui\paintdotnet.ico" "%INSTALL_DIR%\paintdotnet.ico"
-    copy /Y "gui\paintdotnet.ico" "%INSTALL_DIR%\gui\paintdotnet.ico"
-    copy /Y "gui\paintdotnet.ico" "%INSTALL_DIR%\gui\iconos\paintdotnet.ico"
-) else if exist "%~dp0gui\paintdotnet.ico" (
-    copy /Y "%~dp0gui\paintdotnet.ico" "%INSTALL_DIR%\paintdotnet.ico"
-    copy /Y "%~dp0gui\paintdotnet.ico" "%INSTALL_DIR%\gui\paintdotnet.ico"
-    copy /Y "%~dp0gui\paintdotnet.ico" "%INSTALL_DIR%\gui\iconos\paintdotnet.ico"
 )
 
 :: 4. Eliminar accesos directos viejos con caché congelada
@@ -92,7 +103,7 @@ del /F /Q "%USERPROFILE%\Desktop\PaintNotNet.lnk" 2>nul
 del /F /Q "%APPDATA%\Microsoft\Windows\Start Menu\Programs\PaintNotNet.lnk" 2>nul
 
 :: 5. Crear accesos directos resolviendo rutas absolutas completas con $env:LOCALAPPDATA
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$appDir = \"$env:LOCALAPPDATA\pyDCE\"; $iconPath = \"$appDir\paintdotnet.ico,0\"; $exePath = \"$appDir\pyDCE.exe\"; $deskPath = [System.Environment]::GetFolderPath('Desktop') + '\pyDCE.lnk'; $startPath = [System.Environment]::GetFolderPath('StartMenu') + '\Programs\pyDCE.lnk'; $s1 = (New-Object -COM WScript.Shell).CreateShortcut($deskPath); $s1.TargetPath = $exePath; $s1.IconLocation = $iconPath; $s1.WorkingDirectory = $appDir; $s1.Save(); $s2 = (New-Object -COM WScript.Shell).CreateShortcut($startPath); $s2.TargetPath = $exePath; $s2.IconLocation = $iconPath; $s2.WorkingDirectory = $appDir; $s2.Save()"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$appDir = \"$env:LOCALAPPDATA\pyDCE\"; $iconPath = \"$appDir\pyDCE.ico,0\"; $exePath = \"$appDir\pyDCE.exe\"; $deskPath = [System.Environment]::GetFolderPath('Desktop') + '\pyDCE.lnk'; $startPath = [System.Environment]::GetFolderPath('StartMenu') + '\Programs\pyDCE.lnk'; $s1 = (New-Object -COM WScript.Shell).CreateShortcut($deskPath); $s1.TargetPath = $exePath; $s1.IconLocation = $iconPath; $s1.WorkingDirectory = $appDir; $s1.Save(); $s2 = (New-Object -COM WScript.Shell).CreateShortcut($startPath); $s2.TargetPath = $exePath; $s2.IconLocation = $iconPath; $s2.WorkingDirectory = $appDir; $s2.Save()"
 
 :: 6. Pre-configurar el idioma en el archivo de preferencias de usuario
 set "CONFIG_FILE=%INSTALL_DIR%\pyDCE.conf"

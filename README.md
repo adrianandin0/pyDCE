@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="gui/icono.png" width="128" alt="pyDCE Logo">
+  <img src="gui/pyDCE.png" width="128" alt="pyDCE Logo">
 </p>
 
 <h1 align="center"><b>pyDCE</b>: <b>Py</b>thon <b>D</b>igital <b>C</b>anvas <b>E</b>ditor</h1>

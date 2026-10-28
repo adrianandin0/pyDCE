@@ -29,11 +29,12 @@ rm -f /usr/local/sbin/pydce /usr/local/sbin/paintnotnet
 
 echo -e "${COLOR_YELLOW}[2/3] Eliminando accesos directos, íconos y asociaciones MIME...${COLOR_RESET}"
 rm -f /usr/share/applications/pydce.desktop /usr/share/applications/PaintNotNet.desktop
-rm -f /usr/share/pixmaps/pydce.png /usr/share/pixmaps/paintnotnet.png
+rm -f /usr/share/pixmaps/pydce.png /usr/share/pixmaps/pyDCE.png /usr/share/pixmaps/paintnotnet.png
 rm -f /usr/share/mime/packages/pydce.xml /usr/share/mime/packages/paintnotnet.xml
 
 for sz in 16x16 32x32 48x48 64x64 128x128 256x256 512x512; do
     rm -f "/usr/share/icons/hicolor/${sz}/apps/pydce.png"
+    rm -f "/usr/share/icons/hicolor/${sz}/apps/pyDCE.png"
     rm -f "/usr/share/icons/hicolor/${sz}/apps/paintnotnet.png"
 done
 
