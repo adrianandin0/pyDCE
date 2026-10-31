@@ -65,10 +65,10 @@ echo "Instalando y verificando dependencias..."
 pip install --upgrade pip
 
 if [ -f "requirements_macos.txt" ]; then
-    pip install -r requirements_macos.txt
+    pip install --prefer-binary -r requirements_macos.txt
 else
-    pip install -r requirements.txt
-    pip install pyinstaller>=6.0.0
+    pip install --prefer-binary -r requirements.txt
+    pip install --prefer-binary pyinstaller>=6.0.0
 fi
 
 # 4. Limpieza de compilaciones previas
