@@ -422,6 +422,7 @@ class MenuArchivo:
 
         for idx, ruta in enumerate(recientes_validos, 1):
             nombre = os.path.basename(ruta)
+            ext = os.path.splitext(ruta)[1].lower()
             if ext == ".pnn":
                 icono_path = "gui/iconos/pyDCE.png" if os.path.exists("gui/iconos/pyDCE.png") else "gui/iconos/pnn.png"
                 icono = QIcon(icono_path)
