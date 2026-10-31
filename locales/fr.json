@@ -613,5 +613,7 @@
   "Relleno": "Remplissage",
   "Relleno:": "Remplissage :",
   "Transparente": "Transparent",
-  "Blanco": "Blanc"
+  "Blanco": "Blanc",
+  "No requerido en macOS (renderizado nativo Quartz/Metal activo)": "Non requis sur macOS (rendu natif Quartz/Metal actif)",
+  "No disponible o no soportado en este sistema": "Non disponible ou non pris en charge sur ce système"
 }

@@ -194,8 +194,18 @@ class DialogoOpciones(QDialog):
         row_ram.addStretch()
 
         self.chk_use_opengl = QCheckBox(t("Usar aceleración por hardware (OpenGL)"))
-        use_opengl = self.settings.value("use_opengl", True, type=bool)
-        self.chk_use_opengl.setChecked(use_opengl)
+        from core.canvas import comprobar_soporte_opengl
+        self.soporta_gl = comprobar_soporte_opengl()
+        if not self.soporta_gl or sys.platform == "darwin":
+            self.chk_use_opengl.setChecked(False)
+            self.chk_use_opengl.setEnabled(False)
+            if sys.platform == "darwin":
+                self.chk_use_opengl.setToolTip(t("No requerido en macOS (renderizado nativo Quartz/Metal activo)"))
+            else:
+                self.chk_use_opengl.setToolTip(t("No disponible o no soportado en este sistema"))
+        else:
+            use_opengl = self.settings.value("use_opengl", True, type=bool)
+            self.chk_use_opengl.setChecked(use_opengl)
 
         layout_perf.addLayout(row_ram)
         layout_perf.addWidget(self.chk_use_opengl)
@@ -532,8 +542,10 @@ class DialogoOpciones(QDialog):
         # Guardar límite de memoria del historial y aceleración GPU
         max_ram_mb = self.slider_history_ram.value()
         max_ram_mb = max(128, min(8192, round(max_ram_mb / 128.0) * 128))
-        self.settings.setValue("max_history_ram_mb", max_ram_mb)
-        self.settings.setValue("use_opengl", self.chk_use_opengl.isChecked())
+        if sys.platform == "darwin" or not getattr(self, 'soporta_gl', True):
+            self.settings.setValue("use_opengl", False)
+        else:
+            self.settings.setValue("use_opengl", self.chk_use_opengl.isChecked())
 
         # Guardar Opciones de Búsqueda de Imágenes Online
         self.settings.setValue("online_search_enabled", self.chk_online_enabled.isChecked())

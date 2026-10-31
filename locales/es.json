@@ -589,5 +589,7 @@
   "Relleno": "Relleno",
   "Relleno:": "Relleno:",
   "Transparente": "Transparente",
-  "Blanco": "Blanco"
+  "Blanco": "Blanco",
+  "No requerido en macOS (renderizado nativo Quartz/Metal activo)": "No requerido en macOS (renderizado nativo Quartz/Metal activo)",
+  "No disponible o no soportado en este sistema": "No disponible o no soportado en este sistema"
 }

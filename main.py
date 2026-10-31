@@ -361,7 +361,7 @@ class pyDCE(QMainWindow):
         area_scroll.setStyleSheet(f"QScrollArea, QScrollArea > QWidget > QWidget {{ background-color: {c_bg}; border: none; }}")
         area_scroll.viewport().setStyleSheet(f"background-color: {c_bg};")
         area_scroll.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        use_gl = self.settings.value("use_opengl", True, type=bool)
+        use_gl = False if sys.platform == "darwin" else self.settings.value("use_opengl", True, type=bool)
         canvas = None
         if use_gl:
             from core.canvas import comprobar_soporte_opengl

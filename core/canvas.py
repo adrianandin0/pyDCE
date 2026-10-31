@@ -14,6 +14,15 @@ def comprobar_soporte_opengl() -> bool:
     global _OPENGL_SUPPORTED_CACHE
     if _OPENGL_SUPPORTED_CACHE is not None:
         return _OPENGL_SUPPORTED_CACHE
+    import sys
+    if sys.platform == "darwin":
+        # Apple deprecó OpenGL a partir de macOS 10.14 Mojave.
+        # En macOS (especialmente en VMs o sin GPU dedicada), GLRendererFloat
+        # presenta fallos de segmentación (SIGSEGV en memset_pattern16_sse_np)
+        # al redimensionar buffers o alternar pantalla completa.
+        # CanvasWidget basado en QPainter / Cocoa / Metal es la opción óptima y 100% estable.
+        _OPENGL_SUPPORTED_CACHE = False
+        return False
     try:
         from PyQt6.QtWidgets import QApplication
         from PyQt6.QtOpenGLWidgets import QOpenGLWidget
