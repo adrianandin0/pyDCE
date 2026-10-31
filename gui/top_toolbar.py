@@ -311,9 +311,10 @@ class TopToolBarWidget(QToolBar):
         self.act_lbl_pencil_modo = self.addWidget(self.lbl_pencil_modo)
 
         self.combo_pencil_modo = QComboBox()
-        self.combo_pencil_modo.setFixedWidth(85)
+        self.combo_pencil_modo.setMinimumWidth(115)
         self.combo_pencil_modo.setFixedHeight(22)
-        self.combo_pencil_modo.setStyleSheet("font-size: 11px; padding: 1px;")
+        self.combo_pencil_modo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+        self.combo_pencil_modo.setStyleSheet("font-size: 11px; padding: 1px 4px;")
         self.combo_pencil_modo.addItem(t("Pixelado"), "pixelado")
         self.combo_pencil_modo.addItem(t("Realista"), "realista")
         self.combo_pencil_modo.currentIndexChanged.connect(self._on_pencil_modo_changed)
@@ -353,7 +354,7 @@ class TopToolBarWidget(QToolBar):
 
         self.combo_zoom = QComboBox()
         self.combo_zoom.setEditable(True)
-        self.combo_zoom.setFixedWidth(80)
+        self.combo_zoom.setMinimumWidth(85)
         self.combo_zoom.setFixedHeight(22)
         self.combo_zoom.addItems([
             "10%", "25%", "50%", "75%",
@@ -648,7 +649,7 @@ class TopToolBarWidget(QToolBar):
 
         self.combo_texto_fuente = QFontComboBox()
         self.combo_texto_fuente.setFixedHeight(22)
-        self.combo_texto_fuente.setFixedWidth(115)
+        self.combo_texto_fuente.setMinimumWidth(130)
         self.combo_texto_fuente.setStyleSheet("font-size: 11px;")
         self.combo_texto_fuente.currentFontChanged.connect(
             lambda f: self._emitir_cambio_texto_parcial({"font_family": f.family() if isinstance(f, QFont) else str(f)})

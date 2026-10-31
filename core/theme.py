@@ -277,6 +277,9 @@ class ThemeManager:
             border: none;
             background-color: {c_bg} !important;
         }}
+        QTabWidget::tab-bar {{
+            alignment: left;
+        }}
         QTabBar::tab {{
             background: {dt_bg};
             color: {txt};
@@ -287,6 +290,7 @@ class ThemeManager:
             padding: 5px 14px 5px 12px;
             margin-right: 3px;
             font-size: 11px;
+            min-width: 100px;
         }}
         QTabBar::tab:selected {{
             background: {c_bg} !important;
@@ -320,11 +324,14 @@ class ThemeManager:
             outline: 0;
             selection-background-color: {acc};
             selection-color: #FFFFFF;
+            min-width: 110px;
+            padding: 2px;
         }}
         QComboBox QAbstractItemView::item {{
             border: none;
             outline: 0;
-            padding: 3px 5px;
+            padding: 3px 6px;
+            min-height: 18px;
         }}
         QComboBox QAbstractItemView::item:selected, QComboBox QAbstractItemView::item:hover {{
             background-color: {acc};

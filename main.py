@@ -154,6 +154,8 @@ class pyDCE(QMainWindow):
         self.tab_widget.setTabsClosable(True)
         self.tab_widget.setMovable(True)
         self.tab_widget.setObjectName("tab_widget_central")
+        self.tab_widget.tabBar().setExpanding(False)
+        self.tab_widget.tabBar().setElideMode(Qt.TextElideMode.ElideRight)
 
         self.tab_widget.currentChanged.connect(self._on_tab_changed)
         self.tab_widget.tabCloseRequested.connect(self._on_tab_close_requested)
