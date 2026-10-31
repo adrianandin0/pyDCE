@@ -2,8 +2,15 @@
 chcp 65001 > NUL
 setlocal enabledelayedexpansion
 
+set "APP_VERSION=1.1.2"
+if exist "%~dp0version.txt" (
+    set /p APP_VERSION=<"%~dp0version.txt"
+) else if exist "version.txt" (
+    set /p APP_VERSION=<"version.txt"
+)
+
 echo ==============================================================
-echo         Instalador de pyDCE v1.1.2 para Windows
+echo         Instalador de pyDCE v%APP_VERSION% para Windows
 echo ==============================================================
 echo.
 

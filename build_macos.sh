@@ -12,11 +12,12 @@ BUNDLE_NAME="pyDCE.app"
 DIST_DIR="dist_pkg"
 BUILD_DIR="build_pkg"
 
-# Leer versión unificada
-VERSION="1.1.2"
-if [ -f "version.txt" ]; then
-    VERSION=$(tr -d '\r\n' < version.txt)
+# Leer versión unificada directamente desde version.txt
+if [ ! -f "version.txt" ]; then
+    echo "ERROR: No se encontró 'version.txt'."
+    exit 1
 fi
+VERSION=$(tr -d '\r\n' < version.txt)
 
 ARCH="$(uname -m)"
 ZIP_NAME="${APP_NAME}-${VERSION}-macos.zip"
