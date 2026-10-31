@@ -1,5 +1,5 @@
 # ==============================================================================
-# pyDCE v1.0.9dev - Dependencias para Windows / Dependencies for Windows
+# pyDCE v1.1.2 - Dependencias para Windows / Dependencies for Windows
 # ==============================================================================
 # Instalar en un entorno virtual con / Install in a virtual environment with:
 #   pip install -r requirements_windows.txt

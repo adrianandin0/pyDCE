@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# pyDCE v1.0.9dev - Instalador Universal para Distribuciones Linux
+# pyDCE v1.1.2 - Instalador Universal para Distribuciones Linux
 # (Debian, Ubuntu, Linux Mint, Fedora, RHEL, CentOS, Arch, Manjaro, openSUSE, etc.)
 # ==============================================================================
 
@@ -22,7 +22,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 echo -e "${COLOR_BLUE}==============================================================${COLOR_RESET}"
-echo -e "${COLOR_BLUE}        pyDCE v1.0.9dev - Linux Installer / Instalador        ${COLOR_RESET}"
+echo -e "${COLOR_BLUE}        pyDCE v1.1.2 - Linux Installer / Instalador           ${COLOR_RESET}"
 echo -e "${COLOR_BLUE}==============================================================${COLOR_RESET}"
 echo ""
 

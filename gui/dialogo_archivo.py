@@ -223,6 +223,7 @@ class DialogoArchivo(QDialog):
         self._modo = modo
         self._ruta_seleccionada = None
         self._historial = []
+        self._pos_historial = -1
         self.settings = QSettings("pyDCE", "pyDCE")
         if not self.settings.contains("dialogo_archivo/modo_vista"):
             legacy = QSettings("PaintNotNet", "PaintNotNet")
@@ -940,10 +941,16 @@ class DialogoArchivo(QDialog):
         if not os.path.isdir(directorio):
             return
 
+        if not hasattr(self, '_pos_historial'):
+            self._pos_historial = -1
+
         if agregar_historial:
             self._historial = self._historial[:self._pos_historial + 1]
             self._historial.append(directorio)
             self._pos_historial = len(self._historial) - 1
+        elif self._pos_historial == -1:
+            self._historial = [directorio]
+            self._pos_historial = 0
 
         self._directorio = directorio
         self.edit_ruta.setText(directorio)

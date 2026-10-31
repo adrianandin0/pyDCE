@@ -23,7 +23,7 @@ def obtener_version():
                         return ver
             except Exception:
                 pass
-    return "1.0.8"
+    return "1.1.2"
 
 
 class DialogoAcerca(QDialog):
