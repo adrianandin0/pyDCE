@@ -418,6 +418,14 @@ EOF
 chmod +x "$UNINSTALL_SCRIPT"
 cp "$UNINSTALL_SCRIPT" "${SCRIPT_DIR}/uninstall.sh"
 
+# Limpiar directorios temporales de compilación para no dejar residuos de root en el workspace
+rm -rf "${SCRIPT_DIR}/build" "${SCRIPT_DIR}/dist" "${SCRIPT_DIR}/build_pkg" "${SCRIPT_DIR}/dist_pkg"
+
+REAL_USER="${SUDO_USER:-$USER}"
+if [ -n "$REAL_USER" ] && [ "$REAL_USER" != "root" ] && [ -d "${SCRIPT_DIR}/venv" ]; then
+    chown -R "$REAL_USER" "${SCRIPT_DIR}/venv" 2>/dev/null || true
+fi
+
 echo -e "${COLOR_YELLOW}${MSG_STEP4}${COLOR_RESET}"
 echo ""
 echo -e "${COLOR_GREEN}==============================================================${COLOR_RESET}"
@@ -425,8 +433,8 @@ echo -e "${COLOR_GREEN}${MSG_SUCCESS}${COLOR_RESET}"
 echo -e "${COLOR_GREEN}==============================================================${COLOR_RESET}"
 echo -e "${MSG_LAUNCH}"
 echo -e "${MSG_LAUNCH_1}"
-echo -e "${MSG_LAUNCH_2} ${COLOR_YELLOW}paintnotnet${COLOR_RESET}"
+echo -e "${MSG_LAUNCH_2} ${COLOR_YELLOW}pydce${COLOR_RESET}"
 echo -e ""
 echo -e "${MSG_UNINSTALL}"
-echo -e "   ${COLOR_YELLOW}sudo /opt/paintnotnet/uninstall.sh${COLOR_RESET}"
+echo -e "   ${COLOR_YELLOW}sudo /opt/pydce/uninstall.sh${COLOR_RESET}"
 echo ""

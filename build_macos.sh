@@ -27,6 +27,22 @@ echo " pyDCE - Compilador de Aplicación macOS"
 echo " Versión: ${VERSION} (${ARCH})"
 echo "================================================="
 
+# Verificar que se esté ejecutando en macOS
+OS_TYPE="$(uname -s)"
+if [ "$OS_TYPE" != "Darwin" ]; then
+    echo "ERROR: build_macos.sh debe ejecutarse dentro de macOS (o en una VM con macOS)."
+    echo "Sistema actual detectado: ${OS_TYPE} ($(uname -m))"
+    echo ""
+    echo "PyInstaller requiere el entorno nativo de Apple (Mach-O, Cocoa y Qt6 para macOS)"
+    echo "y no permite compilación cruzada (cross-compilation) directa desde Linux a macOS."
+    echo ""
+    echo "Para compilar los paquetes de Linux usa:"
+    echo "   ./build_all.sh"
+    echo ""
+    echo "Para compilar el .app de macOS, corre este script dentro de tu máquina virtual Big Sur."
+    exit 1
+fi
+
 # 1. Verificar Python 3
 if ! command -v python3 &>/dev/null; then
     echo "ERROR: python3 no está instalado o no se encuentra en el PATH."
