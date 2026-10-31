@@ -290,7 +290,7 @@ class ThemeManager:
             padding: 5px 14px 5px 12px;
             margin-right: 3px;
             font-size: 11px;
-            min-width: 100px;
+            min-width: 125px;
         }}
         QTabBar::tab:selected {{
             background: {c_bg} !important;

@@ -39,16 +39,18 @@ class BottomStatusBarWidget(QWidget):
                         self.settings.setValue(k, legacy.value(k))
 
         # 1. Opción Cuadrícula y Reglas
-        self.chk_grid = QCheckBox(t("Cuadrícula"))
+        self.chk_grid = QCheckBox()
         self.chk_grid.setIcon(QIcon("gui/iconos/transparency.png"))
+        self._ajustar_ancho_checkbox(self.chk_grid, t("Cuadrícula"))
         self.chk_grid.setToolTip(t("Muestra un borde fino negro/blanco alrededor de cada píxel al hacer zoom."))
         grid_saved = self.settings.value("show_pixel_grid", False, type=bool)
         self.chk_grid.setChecked(grid_saved)
         self.chk_grid.toggled.connect(self._on_toggle_grid)
         layout.addWidget(self.chk_grid)
 
-        self.chk_rulers = QCheckBox(t("Reglas"))
+        self.chk_rulers = QCheckBox()
         self.chk_rulers.setIcon(QIcon("gui/iconos/ruler.png"))
+        self._ajustar_ancho_checkbox(self.chk_rulers, t("Reglas"))
         self.chk_rulers.setToolTip(t("Muestra u oculta las reglas graduadas en los bordes del lienzo."))
         rulers_saved = self.settings.value("show_rulers", False, type=bool)
         self.chk_rulers.setChecked(rulers_saved)
@@ -329,10 +331,15 @@ class BottomStatusBarWidget(QWidget):
         self.lbl_msg.setText(text)
         self.msg_timer.start(msecs)
 
+    def _ajustar_ancho_checkbox(self, chk: QCheckBox, texto: str):
+        chk.setText(texto)
+        ancho = chk.fontMetrics().horizontalAdvance(texto) + 54
+        chk.setMinimumWidth(max(85, ancho))
+
     def retraducir_bar(self):
-        self.chk_grid.setText(t("Cuadrícula"))
+        self._ajustar_ancho_checkbox(self.chk_grid, t("Cuadrícula"))
         self.chk_grid.setToolTip(t("Muestra un borde fino negro/blanco alrededor de cada píxel al hacer zoom."))
-        self.chk_rulers.setText(t("Reglas"))
+        self._ajustar_ancho_checkbox(self.chk_rulers, t("Reglas"))
         self.chk_rulers.setToolTip(t("Muestra u oculta las reglas graduadas en centímetros en los bordes del lienzo."))
         self.lbl_align.setText(t("Alinear selección:"))
         self.btn_align_left.setToolTip(t("Alinear a la izquierda"))

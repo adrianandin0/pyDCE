@@ -441,7 +441,11 @@ class pyDCE(QMainWindow):
                 titulo = f"{base_st} {num}" if self.tab_widget.count() > 0 else base_st
 
         idx = self.tab_widget.addTab(container, titulo)
-        # Reemplazar botón cierre nativo con widget propio (con margen derecho)
+        # En macOS Qt coloca un botón nativo en LeftSide; lo eliminamos explícitamente para evitar duplicados
+        self.tab_widget.tabBar().setTabButton(
+            idx, self.tab_widget.tabBar().ButtonPosition.LeftSide, None
+        )
+        # Reemplazar botón cierre con widget propio en RightSide
         btn_cerrar = self._hacer_boton_cerrar()
         self.tab_widget.tabBar().setTabButton(
             idx, self.tab_widget.tabBar().ButtonPosition.RightSide, btn_cerrar
@@ -464,7 +468,7 @@ class pyDCE(QMainWindow):
         wrapper.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         wrapper.setProperty("tab_uid", uid)
         layout = QHBoxLayout(wrapper)
-        layout.setContentsMargins(2, 0, 7, 0)  # 7px margen derecho
+        layout.setContentsMargins(0, 0, 4, 0)
         layout.setSpacing(0)
 
         btn = QToolButton()

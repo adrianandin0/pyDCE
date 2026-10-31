@@ -1,4 +1,5 @@
 import os
+import sys
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QSpinBox, QSlider,
     QPushButton, QComboBox, QDialogButtonBox, QGroupBox, QCheckBox, QWidget, QSizePolicy
@@ -92,7 +93,8 @@ class DialogoOpciones(QDialog):
         lbl_icon_lang.setPixmap(QIcon("gui/iconos/languages.png").pixmap(QSize(16, 16)))
         self.combo_lang = QComboBox()
         self.combo_lang.addItems(["Español", "English", "Português", "Français"])
-        default_lang = self.settings.value("language", "Español")
+        fallback_lang = "English" if sys.platform == "darwin" else "Español"
+        default_lang = self.settings.value("language", fallback_lang)
         idx_lang = self.combo_lang.findText(str(default_lang))
         if idx_lang >= 0:
             self.combo_lang.setCurrentIndex(idx_lang)

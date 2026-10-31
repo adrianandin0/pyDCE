@@ -20,7 +20,7 @@ class I18nManager:
     def _init_manager(self):
         self._bus = _I18nSignalBus()
         self.translations = {}
-        self.current_language = "Español"
+        self.current_language = "English" if sys.platform == "darwin" else "Español"
         self.cargar_idioma_configurado()
 
     @property
@@ -38,7 +38,8 @@ class I18nManager:
         settings = QSettings("pyDCE", "pyDCE")
         lang = settings.value("language", None)
         if lang is None:
-            lang = QSettings("PaintNotNet", "PaintNotNet").value("language", "Español")
+            default_lang = "English" if sys.platform == "darwin" else "Español"
+            lang = QSettings("PaintNotNet", "PaintNotNet").value("language", default_lang)
         self.establecer_idioma(str(lang))
 
     def establecer_idioma(self, nombre_idioma):
