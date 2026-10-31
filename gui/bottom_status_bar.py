@@ -8,6 +8,8 @@ Contiene:
 - Coordenadas de posición del cursor fijas con icono pin.png.
 - Adaptabilidad dinámica al tema activo.
 """
+from __future__ import annotations
+
 from PyQt6.QtWidgets import (
     QWidget, QHBoxLayout, QLabel, QToolButton, QFrame, QCheckBox, QComboBox
 )

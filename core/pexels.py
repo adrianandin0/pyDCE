@@ -2,6 +2,8 @@
 core/pexels.py — Búsqueda de imágenes en Internet mediante APIs Oficiales (Wikimedia Commons, Pexels, Unsplash, Pixabay).
 Sin scraping web ni vulneración de SSL/ToS.
 """
+from __future__ import annotations
+
 import json
 import ssl
 import urllib.request

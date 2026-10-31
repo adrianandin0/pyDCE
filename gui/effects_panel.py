@@ -8,6 +8,8 @@ Cada efecto tiene:
 
 El color de cada slot se persiste en QSettings("pyDCE", "EffectsPanel").
 """
+from __future__ import annotations
+
 import math
 from PyQt6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel,

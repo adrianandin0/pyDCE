@@ -2,6 +2,8 @@
 gui/dialogo_pexels.py — Diálogo de búsqueda e inserción de imágenes desde Internet con paginación (40 por página).
 Manejo seguro de hilos QThread para evitar bloqueos y cierres inesperados.
 """
+from __future__ import annotations
+
 import os
 import numpy as np
 from PyQt6.QtWidgets import (

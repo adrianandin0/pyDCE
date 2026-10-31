@@ -2,6 +2,8 @@
 brushes_panel.py — Panel de formas de pincel/goma
 2 botones: Círculo y Cuadrado.
 """
+from __future__ import annotations
+
 from PyQt6.QtCore import Qt, QRectF, QSize
 from PyQt6.QtGui import QPainter, QPen, QColor, QBrush, QPixmap, QIcon
 from PyQt6.QtWidgets import (

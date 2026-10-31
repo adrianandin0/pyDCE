@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import math
 from PyQt6.QtCore import Qt, QPointF, QRectF
 from PyQt6.QtGui import QPainter, QPen, QColor, QBrush, QPainterPath

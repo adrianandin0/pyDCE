@@ -2,6 +2,8 @@
 menu_ajustes.py — Ajustes de imagen: Tono/Saturación, Brillo/Contraste,
 Iluminación y Sombras, Curvas de Color, B&N, Invertir.
 """
+from __future__ import annotations
+
 import numpy as np
 from PyQt6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QLabel, QSlider, QPushButton,
