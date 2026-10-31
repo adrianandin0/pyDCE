@@ -14,6 +14,7 @@ Correcciones clave:
   - WA_InputMethodEnabled + inputMethodEvent en canvas → á é ñ ü funcionan
 """
 from __future__ import annotations
+from typing import List
 from dataclasses import dataclass, field
 from PyQt6.QtGui import (
     QPainter, QFont, QPen, QColor, QFontMetrics,
@@ -121,7 +122,7 @@ class TextSpan:
     fmt:  CharFormat = field(default_factory=CharFormat)
 
 
-RichLine = list[TextSpan]
+RichLine = List[TextSpan]
 
 def _span_fmt(span):
     if hasattr(span, 'fmt'):

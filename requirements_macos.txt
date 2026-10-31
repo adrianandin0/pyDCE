@@ -12,8 +12,8 @@ PyQt6>=6.5.0
 numpy>=1.24.0
 
 # Algoritmos de Visión por Computadora y Pixeles / Computer Vision & Pixel Operations
-# Se utiliza opencv-python-headless para contar con binarios precompilados universales y evitar compilar C++ con clang
-opencv-python-headless>=4.5.0
+# Versión 4.6.0.66 compatible con macOS 11 Big Sur en adelante (sin dependencia libvmaf de macOS 12)
+opencv-python-headless==4.6.0.66
 
 # Manipulación de imágenes / Image processing & Pillow
 Pillow>=9.5.0
