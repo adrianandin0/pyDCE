@@ -11,10 +11,12 @@ class MenuAcerca:
 
     def retraducir_menu(self):
         from core.i18n import t
+        from PyQt6.QtGui import QAction
         if hasattr(self, 'action') and self.action:
             self.menu_bar.removeAction(self.action)
 
         self.action = self.menu_bar.addAction(t("Acerca de..."))
+        self.action.setMenuRole(QAction.MenuRole.AboutRole)
         self.action.triggered.connect(self._abrir_acerca)
 
     def _abrir_acerca(self):

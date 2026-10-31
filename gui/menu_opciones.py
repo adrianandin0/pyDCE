@@ -18,6 +18,8 @@ class MenuOpciones:
         self.menu = self.menu_bar.addMenu(t("Opciones"))
 
         action_pref = self.menu.addAction(QIcon("gui/iconos/config.png"), t("Preferencias de usuario..."))
+        from PyQt6.QtGui import QAction
+        action_pref.setMenuRole(QAction.MenuRole.PreferencesRole)
         action_pref.triggered.connect(self._abrir_preferencias)
 
         action_atajos = self.menu.addAction(QIcon("gui/iconos/keyboard.png"), t("Atajos de teclado..."))

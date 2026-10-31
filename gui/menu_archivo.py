@@ -363,7 +363,9 @@ class MenuArchivo:
 
         self.menu_archivo.addSeparator()
 
+        from PyQt6.QtGui import QAction
         accion_salir = self.menu_archivo.addAction(QIcon("gui/iconos/close.png"), t("Salir"))
+        accion_salir.setMenuRole(QAction.MenuRole.QuitRole)
         accion_salir.setShortcut("Ctrl+Q")
         accion_salir.triggered.connect(self.salir_programa)
 
