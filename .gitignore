@@ -105,6 +105,9 @@ build_all.sh
 *.rpm
 *.pkg.tar.zst
 *.exe
+*.dmg
+*.app/
+*-macos.zip
 PNN-Setup_*.exe
 pyDCE-Setup_*.exe
 paintnotnet_*

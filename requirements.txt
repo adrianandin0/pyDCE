@@ -1,6 +1,6 @@
 # ==============================================================================
 # pyDCE v1.1.2 — Archivo de Requerimientos Completo
-# Full Requirements File — Linux & Windows
+# Full Requirements File — Linux, macOS & Windows
 # ==============================================================================
 #
 # USO / USAGE:
@@ -59,6 +59,6 @@ Pillow>=9.5.0
 requests>=2.28.0
 
 # ==============================================================================
-# SOLO PARA GENERAR EJECUTABLE / ONLY TO BUILD EXECUTABLE (.bin / .exe)
+# SOLO PARA GENERAR EJECUTABLE / ONLY TO BUILD EXECUTABLE (.bin / .exe / .app)
 # ==============================================================================
 # pyinstaller>=6.0.0

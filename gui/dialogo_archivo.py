@@ -87,15 +87,15 @@ def _lugares_rapidos():
                 lugares.append((f'{raiz}', raiz, 'disk.png'))
     else:
         lugares.append((t('Sistema (/)'), '/', 'disk.png'))
-        media = '/media'
-        if os.path.isdir(media):
-            try:
-                for sub in sorted(os.listdir(media)):
-                    p = os.path.join(media, sub)
-                    if os.path.isdir(p):
-                        lugares.append((sub, p, 'disk.png'))
-            except PermissionError:
-                pass
+        for media_dir in ('/media', '/Volumes'):
+            if os.path.isdir(media_dir):
+                try:
+                    for sub in sorted(os.listdir(media_dir)):
+                        p = os.path.join(media_dir, sub)
+                        if os.path.isdir(p):
+                            lugares.append((sub, p, 'disk.png'))
+                except PermissionError:
+                    pass
 
     return lugares
 

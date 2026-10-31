@@ -5,12 +5,25 @@ import sys
 
 block_cipher = None
 
+# Leer versión unificada
+app_version = '1.1.2'
+if os.path.exists('version.txt'):
+    with open('version.txt', 'r', encoding='utf-8') as vf:
+        v = vf.read().strip()
+        if v:
+            app_version = v
+
 extra_datas = [
     ('gui/iconos', 'gui/iconos'),
     ('locales', 'locales'),
     ('version.txt', '.'),
 ]
-for icon_name in ['pyDCE.png', 'pydce.png', 'pyDCE.ico', 'pydce.ico', 'icono.png', 'paintdotnet.ico']:
+for icon_name in [
+    'pyDCE.png', 'pydce.png',
+    'pyDCE.ico', 'pydce.ico',
+    'pyDCE.icns', 'pydce.icns',
+    'icono.png', 'paintdotnet.ico'
+]:
     icon_path = os.path.join('gui', icon_name)
     if os.path.exists(icon_path):
         extra_datas.append((icon_path, 'gui'))
@@ -18,6 +31,11 @@ for icon_name in ['pyDCE.png', 'pydce.png', 'pyDCE.ico', 'pydce.ico', 'icono.png
 app_icon = None
 if sys.platform == 'win32':
     for candidate in ['gui/pyDCE.ico', 'gui/pydce.ico', 'gui/paintdotnet.ico']:
+        if os.path.exists(candidate):
+            app_icon = candidate
+            break
+elif sys.platform == 'darwin':
+    for candidate in ['gui/pyDCE.icns', 'gui/pydce.icns', 'gui/pyDCE.png']:
         if os.path.exists(candidate):
             app_icon = candidate
             break
@@ -85,3 +103,32 @@ coll = COLLECT(
     upx_exclude=[],
     name='pyDCE',
 )
+
+if sys.platform == 'darwin':
+    bundle_icon = None
+    for candidate in ['gui/pyDCE.icns', 'gui/pydce.icns']:
+        if os.path.exists(candidate):
+            bundle_icon = candidate
+            break
+
+    app = BUNDLE(
+        coll,
+        name='pyDCE.app',
+        icon=bundle_icon,
+        bundle_identifier='com.adrian.pydce',
+        info_plist={
+            'CFBundleName': 'pyDCE',
+            'CFBundleDisplayName': 'pyDCE',
+            'CFBundleIdentifier': 'com.adrian.pydce',
+            'CFBundleVersion': app_version,
+            'CFBundleShortVersionString': app_version,
+            'CFBundlePackageType': 'APPL',
+            'CFBundleSignature': '????',
+            'CFBundleExecutable': 'pyDCE',
+            'CFBundleIconFile': 'pyDCE.icns',
+            'NSHighResolutionCapable': True,
+            'LSMinimumSystemVersion': '11.0',
+            'NSPrincipalClass': 'NSApplication',
+            'NSAppleScriptEnabled': False,
+        },
+    )

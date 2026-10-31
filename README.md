@@ -29,6 +29,7 @@
 - [Installation Guide](#installation-guide)
   - [Linux Installation (Primary Platform)](#linux-installation-primary-platform)
   - [Optional Windows Installation](#optional-windows-installation)
+  - [macOS Installation & Compilation](#macos-installation--compilation)
   - [Direct Execution from Source Code](#direct-execution-from-source-code)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
@@ -228,6 +229,32 @@ This builds the native executable, installs it to `%LOCALAPPDATA%\pyDCE`, and cr
 
 ---
 
+### macOS Installation & Compilation
+
+pyDCE supports macOS 11.0 (Big Sur) and later on both Apple Silicon and Intel Macs.
+
+#### Pre-built Application (.app / .zip / .dmg)
+1. Download the latest `pyDCE-*-macos.zip` or `pyDCE-*-macos.dmg` from the repository releases.
+2. Open the DMG or extract the ZIP.
+3. Drag `pyDCE.app` into `/Applications`.
+4. If macOS Gatekeeper warns that the developer cannot be verified:
+   - Right-click `pyDCE.app` and select **Open**, or
+   - In Terminal, run:
+     ```bash
+     xattr -cr /Applications/pyDCE.app
+     ```
+
+#### Building from Source on macOS
+```bash
+git clone https://github.com/adrianandin0/pyDCE.git
+cd pyDCE
+chmod +x build_macos.sh
+./build_macos.sh
+```
+The script compiles `dist_pkg/pyDCE.app`, performs ad-hoc signing, and generates `pyDCE-*-macos.zip` and `pyDCE-*-macos.dmg`.
+
+---
+
 ### Direct Execution from Source Code
 
 If you prefer not to compile or install system packages, run pyDCE directly with Python (after completing Step 1 for your OS):
@@ -251,6 +278,17 @@ python -m venv venv
 call venv\Scripts\activate.bat
 pip install --upgrade pip
 pip install -r requirements_windows.txt
+python main.py
+```
+
+#### macOS:
+```bash
+git clone https://github.com/adrianandin0/pyDCE.git
+cd pyDCE
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements_macos.txt
 python main.py
 ```
 
