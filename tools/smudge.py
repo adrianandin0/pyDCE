@@ -3,7 +3,7 @@ import numpy as np
 from PyQt6.QtCore import Qt, QPointF, QRectF, QPoint
 from PyQt6.QtGui import QPainter, QPen, QColor, QImage, QBrush
 from tools.base_tool import BaseTool
-from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input
+from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input, compute_stroke_dirty_rect
 
 
 class SmudgeTool(BaseTool):
@@ -53,15 +53,17 @@ class SmudgeTool(BaseTool):
         if self.is_drawing and self.last_pos:
             raw_pos = event.position()
             pos = smooth_mouse_input(self.last_pos, raw_pos)
+            prev_idx = self._last_drawn_index
             self._points.append(pos)
             self._smudge_stroke(canvas, is_final=False)
             self.last_pos = pos
-            if hasattr(canvas.layer_mgr, 'invalidate_cache'):
-                canvas.layer_mgr.invalidate_cache()
 
             grosor = max(2, getattr(canvas, 'grosor_pincel', 20))
-            p_prev = self._points[-2] if len(self._points) >= 2 else pos
-            dirty_rect = QRectF(p_prev, pos).normalized().toRect().adjusted(-grosor - 6, -grosor - 6, grosor + 12, grosor + 12)
+            dirty_rect = compute_stroke_dirty_rect(self._points, prev_idx, int(grosor) + 8)
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
+            elif hasattr(canvas.layer_mgr, 'invalidate_cache'):
+                canvas.layer_mgr.invalidate_cache()
             canvas.actualizar_region_sucia(dirty_rect)
 
     def mouse_release(self, canvas, event, color_activo=None):
@@ -72,7 +74,9 @@ class SmudgeTool(BaseTool):
             self.smudge_buffer = None
             self._points = []
             self._last_drawn_index = 0
-            if hasattr(canvas.layer_mgr, 'invalidate_cache'):
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region()
+            elif hasattr(canvas.layer_mgr, 'invalidate_cache'):
                 canvas.layer_mgr.invalidate_cache()
             if hasattr(canvas, 'push_document_state'):
                 canvas.push_document_state(self.name)

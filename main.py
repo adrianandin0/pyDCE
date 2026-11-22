@@ -361,7 +361,8 @@ class pyDCE(QMainWindow):
         area_scroll.setStyleSheet(f"QScrollArea, QScrollArea > QWidget > QWidget {{ background-color: {c_bg}; border: none; }}")
         area_scroll.viewport().setStyleSheet(f"background-color: {c_bg};")
         area_scroll.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        use_gl = False if sys.platform == "darwin" else self.settings.value("use_opengl", True, type=bool)
+        default_use_gl = (sys.platform not in ("darwin", "win32"))
+        use_gl = False if sys.platform == "darwin" else self.settings.value("use_opengl", default_use_gl, type=bool)
         canvas = None
         if use_gl:
             from core.canvas import comprobar_soporte_opengl
@@ -627,17 +628,29 @@ class pyDCE(QMainWindow):
     def marcar_modificado_pestana(self, canvas=None, es_modificado=None):
         if not canvas:
             canvas = getattr(self, 'canvas', None)
+        estado_cambio = (es_modificado is None)
         if canvas:
+            prev_mod = getattr(canvas, 'lienzo_modificado', False)
             if es_modificado is not None:
                 canvas.lienzo_modificado = es_modificado
-            idx = self._find_tab_index_for_canvas(canvas)
-            if idx >= 0:
-                self.actualizar_titulo_pestana(idx)
+                estado_cambio = (prev_mod != es_modificado)
+            if estado_cambio:
+                idx = self._find_tab_index_for_canvas(canvas)
+                if idx >= 0:
+                    self.actualizar_titulo_pestana(idx)
             if getattr(canvas, 'lienzo_modificado', False) and hasattr(self, 'emergency_mgr') and self.emergency_mgr:
                 self.emergency_mgr.solicitar_guardado_emergencia(canvas)
-        self.actualizar_titulo_ventana()
-        if hasattr(self, 'layers_panel'):
-            self.layers_panel.actualizar_thumbnails()
+        if estado_cambio:
+            self.actualizar_titulo_ventana()
+        if hasattr(self, 'layers_panel') and self.layers_panel:
+            is_drawing = bool(canvas and getattr(canvas, 'drawing', False))
+            if hasattr(self.layers_panel, 'solicitar_actualizacion_thumbnails'):
+                self.layers_panel.solicitar_actualizacion_thumbnails(
+                    solo_capa_activa=is_drawing,
+                    diferido=is_drawing,
+                )
+            elif not is_drawing:
+                self.layers_panel.actualizar_thumbnails()
 
     def _on_tab_double_clicked(self, index):
         if index < 0 or index >= self.tab_widget.count():
@@ -677,7 +690,9 @@ class pyDCE(QMainWindow):
         else:
             nombre = t("Sin Título")
         asterisco = " *" if getattr(canvas, 'lienzo_modificado', False) else ""
-        self.tab_widget.setTabText(index, f"{nombre}{asterisco}")
+        nuevo_texto = f"{nombre}{asterisco}"
+        if self.tab_widget.tabText(index) != nuevo_texto:
+            self.tab_widget.setTabText(index, nuevo_texto)
 
     def _find_tab_index_for_canvas(self, canvas):
         for i in range(self.tab_widget.count()):
@@ -696,7 +711,9 @@ class pyDCE(QMainWindow):
             else:
                 nombre = t("Sin Título")
             asterisco = " *" if getattr(self.canvas, 'lienzo_modificado', False) else ""
-            self.setWindowTitle(f"pyDCE - {nombre}{asterisco}")
+            nuevo_titulo = f"pyDCE - {nombre}{asterisco}"
+            if self.windowTitle() != nuevo_titulo:
+                self.setWindowTitle(nuevo_titulo)
             idx = self._find_tab_index_for_canvas(self.canvas)
             if idx >= 0:
                 self.actualizar_titulo_pestana(idx)

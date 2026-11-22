@@ -319,6 +319,10 @@ class BottomStatusBarWidget(QWidget):
             self.lbl_canvas_size.setText(f"{w} x {h} (px)")
 
     def actualizar_posicion_cursor(self, x: int | None, y: int | None):
+        key = (x, y)
+        if getattr(self, '_last_cursor_coord', None) == key:
+            return
+        self._last_cursor_coord = key
         if x is not None and y is not None:
             self.lbl_cursor_pos.setText(f"{x} x {y} (px)")
         else:

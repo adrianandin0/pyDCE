@@ -5,7 +5,7 @@ from PyQt6.QtCore import Qt, QPointF, QRectF
 from PyQt6.QtGui import QPainter, QPen, QColor, QBrush, QPainterPath
 from tools.base_tool import BaseTool
 from tools.brush import _draw_cursor
-from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input
+from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input, compute_stroke_dirty_rect
 
 
 from PyQt6.QtWidgets import QApplication
@@ -31,7 +31,9 @@ class EraserTool(BaseTool):
         forma = getattr(canvas, 'forma_pincel', 'Redondo')
 
         painter.save()
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        sf = getattr(canvas, 'scale_factor', 1.0)
+        use_aa = (forma != 'Cuadrado' and (size * sf) > 4.0)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, use_aa)
 
         pen1 = QPen(QColor(0, 0, 0, 200), 1.5)
         pen1.setCosmetic(True)
@@ -58,9 +60,13 @@ class EraserTool(BaseTool):
             self._last_drawn_index = 0
             self.shift_anchor = None
             self._erase_segment(canvas, pos, pos)
-            if hasattr(canvas.layer_mgr, 'invalidate_cache'):
+            grosor = max(1, getattr(canvas, 'grosor_pincel', 3))
+            dirty_rect = compute_stroke_dirty_rect(self._points, 0, int(grosor) + 6)
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
+            elif hasattr(canvas.layer_mgr, 'invalidate_cache'):
                 canvas.layer_mgr.invalidate_cache()
-            canvas.update()
+            canvas.actualizar_region_sucia(dirty_rect)
 
     def mouse_move(self, canvas, event, color_activo=None):
         if not self.is_drawing or self._last_pos is None:
@@ -86,23 +92,27 @@ class EraserTool(BaseTool):
             self._points = [self._last_pos]
             self._last_drawn_index = 0
 
+        prev_idx = self._last_drawn_index
         self._points.append(pos)
         self._erase_stroke(canvas, is_final=False)
 
         self._last_pos = pos
-        if hasattr(canvas.layer_mgr, 'invalidate_cache'):
-            canvas.layer_mgr.invalidate_cache()
-        if canvas.callback_modificado:
-            canvas.callback_modificado()
-
         grosor = max(1, getattr(canvas, 'grosor_pincel', 3))
-        p_prev = self._points[-2] if (hasattr(self, '_points') and len(self._points) >= 2) else pos
-        dirty_rect = QRectF(p_prev, pos).normalized().toRect().adjusted(-int(grosor) - 4, -int(grosor) - 4, int(grosor) + 8, int(grosor) + 8)
+        dirty_rect = compute_stroke_dirty_rect(self._points, prev_idx, int(grosor) + 6)
+        if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+            canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
+        elif hasattr(canvas.layer_mgr, 'invalidate_cache'):
+            canvas.layer_mgr.invalidate_cache()
         canvas.actualizar_region_sucia(dirty_rect)
 
     def mouse_release(self, canvas, event, color_activo=None):
         if self.is_drawing:
+            prev_idx = self._last_drawn_index
             self._erase_stroke(canvas, is_final=True)
+            grosor = max(1, getattr(canvas, 'grosor_pincel', 3))
+            dirty_rect = compute_stroke_dirty_rect(self._points, prev_idx, int(grosor) + 6)
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
             self.is_drawing = False
             self._last_pos = None
             self.shift_anchor = None

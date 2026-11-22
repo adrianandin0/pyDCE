@@ -616,5 +616,7 @@
   "Blanco": "Branco",
   "No requerido en macOS (renderizado nativo Quartz/Metal activo)": "Não requerido no macOS (renderização nativa Quartz/Metal ativa)",
   "No disponible o no soportado en este sistema": "Não disponível ou não suportado neste sistema",
-  "Ayuda": "Ajuda"
+  "Ayuda": "Ajuda",
+  "Uso actual del historial:": "Uso atual do histórico:",
+  "estados": "estados"
 }

@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel, QToolButton,
                              QPushButton, QListWidget, QListWidgetItem, QAbstractItemView,
                              QMessageBox, QMenu, QInputDialog, QWidgetAction, QSpinBox)
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtGui import QIcon, QPixmap, QImage, QPainter, QColor, QPen
+from PyQt6.QtCore import Qt, QSize, QTimer
+from PyQt6.QtGui import QIcon, QPixmap, QImage, QPainter, QColor, QPen, QBrush
 from core.i18n import t
 
 
@@ -114,11 +114,19 @@ class LayerRowWidget(QWidget):
 
         self.actualizar_estado_visibilidad()
 
-    def actualizar_thumb(self):
-        thumb_icon, tw, th = self.panel.generar_thumbnail(self.capa.image, layer=self.capa)
+    def actualizar_thumb(self, force=False):
+        from core.theme import ThemeManager
+        c1, c2 = ThemeManager().colores_checkerboard()
+        img = self.capa.image
+        sig = (img.cacheKey() if (img and hasattr(img, 'cacheKey')) else id(img), c1.rgba(), c2.rgba())
+        if not force and getattr(self, '_last_thumb_sig', None) == sig:
+            return False
+        thumb_icon, tw, th = self.panel.generar_thumbnail(img, layer=self.capa)
         pix = thumb_icon.pixmap(tw, th)
         self.lbl_thumb.setFixedSize(tw, th)
         self.lbl_thumb.setPixmap(pix)
+        self._last_thumb_sig = sig
+        return True
 
     def actualizar_textos(self):
         op_pct = int(round(getattr(self.capa, 'opacity', 1.0) * 100))
@@ -130,6 +138,8 @@ class LayerRowWidget(QWidget):
         self.actualizar_estado_visibilidad()
         canvas = self.panel.obtener_canvas()
         if canvas:
+            if hasattr(canvas, 'invalidate_cache'):
+                canvas.invalidate_cache()
             canvas.update()
 
     def actualizar_estado_visibilidad(self):
@@ -170,6 +180,12 @@ class LayersPanelWidget(QWidget):
         super().__init__()
         self.main_window = main_window
         self.layer_counter = 1
+        self._thumb_checker_key = None
+        self._thumb_checker_brush = None
+        self._thumb_pending_all = False
+        self._thumb_timer = QTimer(self)
+        self._thumb_timer.setSingleShot(True)
+        self._thumb_timer.timeout.connect(self._ejecutar_actualizacion_thumbs_diferida)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(4, 4, 4, 4)
@@ -260,24 +276,42 @@ class LayersPanelWidget(QWidget):
             tw = max(1, int(round(52.0 * aspect)))
         return tw, th
 
+    def _get_thumb_checker_brush(self) -> QBrush:
+        from core.theme import ThemeManager
+        c1, c2 = ThemeManager().colores_checkerboard()
+        key = (c1.rgba(), c2.rgba())
+        if self._thumb_checker_key == key and self._thumb_checker_brush is not None:
+            return self._thumb_checker_brush
+        sq_size = 4
+        tile = QPixmap(sq_size * 2, sq_size * 2)
+        tile.fill(c1)
+        tp = QPainter(tile)
+        tp.fillRect(sq_size, 0, sq_size, sq_size, c2)
+        tp.fillRect(0, sq_size, sq_size, sq_size, c2)
+        tp.end()
+        self._thumb_checker_brush = QBrush(tile)
+        self._thumb_checker_key = key
+        return self._thumb_checker_brush
+
     def generar_thumbnail(self, layer_image, layer=None):
         tw, th = self.calcular_tamano_thumbnail(layer_image)
 
         canvas_thumb = QImage(tw, th, QImage.Format.Format_ARGB32_Premultiplied)
         painter = QPainter(canvas_thumb)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
-        
-        # Fondo ajedrezado según tema para representar transparencia de la capa
-        sq_size = 4
-        from core.theme import ThemeManager
-        c1, c2 = ThemeManager().colores_checkerboard()
-        for y in range(0, th, sq_size):
-            for x in range(0, tw, sq_size):
-                col = c1 if ((x // sq_size) + (y // sq_size)) % 2 == 0 else c2
-                painter.fillRect(x, y, sq_size, sq_size, col)
+
+        # Fondo ajedrezado cacheado segun tema para representar transparencia de la capa
+        painter.fillRect(0, 0, tw, th, self._get_thumb_checker_brush())
 
         if layer_image and not layer_image.isNull():
-            thumb = layer_image.scaled(tw, th, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            img_key = (layer_image.cacheKey() if hasattr(layer_image, 'cacheKey') else id(layer_image), tw, th)
+            if layer is not None and getattr(layer, '_cached_thumb_img_key', None) == img_key and getattr(layer, '_cached_thumb_img', None) is not None:
+                thumb = layer._cached_thumb_img
+            else:
+                thumb = layer_image.scaled(tw, th, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                if layer is not None:
+                    layer._cached_thumb_img_key = img_key
+                    layer._cached_thumb_img = thumb
             ox = (tw - thumb.width()) // 2
             oy = (th - thumb.height()) // 2
             painter.drawImage(ox, oy, thumb)
@@ -288,14 +322,74 @@ class LayersPanelWidget(QWidget):
 
         return QIcon(QPixmap.fromImage(canvas_thumb)), tw, th
 
+    def _ejecutar_actualizacion_thumbs_diferida(self):
+        if self._thumb_pending_all:
+            self._thumb_pending_all = False
+            self.actualizar_thumbnails()
+        else:
+            self.actualizar_thumbnail_capa_activa()
+
+    def solicitar_actualizacion_thumbnails(self, solo_capa_activa: bool = False, diferido: bool = False):
+        """
+        Programa o ejecuta la actualizacion de miniaturas.
+        Durante trazos continuos (diferido=True) agrupa con throttle de 250 ms para no bloquear mouse_move.
+        """
+        if diferido:
+            if not solo_capa_activa:
+                self._thumb_pending_all = True
+            if not self._thumb_timer.isActive():
+                self._thumb_timer.start(250)
+            return
+
+        if self._thumb_timer.isActive():
+            self._thumb_timer.stop()
+        if solo_capa_activa and not self._thumb_pending_all:
+            self.actualizar_thumbnail_capa_activa()
+        else:
+            self._thumb_pending_all = False
+            self.actualizar_thumbnails()
+
+    def actualizar_thumbnail_capa_activa(self):
+        from core.perf_monitor import perf_monitor
+        _t0 = None
+        if perf_monitor.enabled:
+            import time
+            _t0 = time.perf_counter()
+        try:
+            canvas = self.obtener_canvas()
+            if not canvas or not hasattr(canvas, 'layer_mgr'):
+                return
+            idx = getattr(canvas.layer_mgr, 'indice_activo', 0)
+            if 0 <= idx < self.lista_capas.count():
+                item = self.lista_capas.item(idx)
+                row_widget = self.lista_capas.itemWidget(item)
+                if row_widget and hasattr(row_widget, 'actualizar_thumb'):
+                    if row_widget.actualizar_thumb():
+                        tw, th = self.calcular_tamano_thumbnail(row_widget.capa.image)
+                        item.setSizeHint(QSize(0, max(36, th + 8)))
+        finally:
+            if _t0 is not None:
+                import time
+                perf_monitor.record_thumbnail_update((time.perf_counter() - _t0) * 1000.0)
+
     def actualizar_thumbnails(self):
-        for i in range(self.lista_capas.count()):
-            item = self.lista_capas.item(i)
-            row_widget = self.lista_capas.itemWidget(item)
-            if row_widget and hasattr(row_widget, 'actualizar_thumb'):
-                row_widget.actualizar_thumb()
-                tw, th = self.calcular_tamano_thumbnail(row_widget.capa.image)
-                item.setSizeHint(QSize(0, max(36, th + 8)))
+        from core.perf_monitor import perf_monitor
+        _t0 = None
+        if perf_monitor.enabled:
+            import time
+            _t0 = time.perf_counter()
+        try:
+            for i in range(self.lista_capas.count()):
+                item = self.lista_capas.item(i)
+                row_widget = self.lista_capas.itemWidget(item)
+                if row_widget and hasattr(row_widget, 'actualizar_thumb'):
+                    if row_widget.actualizar_thumb():
+                        tw, th = self.calcular_tamano_thumbnail(row_widget.capa.image)
+                        item.setSizeHint(QSize(0, max(36, th + 8)))
+        finally:
+            if _t0 is not None:
+                import time
+                perf_monitor.record_thumbnail_update((time.perf_counter() - _t0) * 1000.0)
 
     def reconstruir_lista_capas(self):
         self.lista_capas.blockSignals(True)

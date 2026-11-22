@@ -3,7 +3,7 @@ import random
 from PyQt6.QtCore import Qt, QPoint, QPointF, QRect, QRectF
 from PyQt6.QtGui import QPainter, QPen, QColor, QBrush
 from PyQt6.QtWidgets import QApplication
-from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input
+from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input, compute_stroke_dirty_rect
 from tools.base_tool import BaseTool
 
 
@@ -180,7 +180,10 @@ class PencilTool(BaseTool):
                 self._draw_realistic_stamp(painter, pt_int, w, color, dureza, polvo, is_slow=True)
 
             painter.end()
-            canvas.update()
+            dirty_rect = compute_stroke_dirty_rect(self._points, 0, int(w) + 6)
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
+            canvas.actualizar_region_sucia(dirty_rect)
 
     def mouse_move(self, canvas, event, color_activo=None):
         if self.is_drawing:
@@ -213,23 +216,28 @@ class PencilTool(BaseTool):
                 self._points = [self.last_point]
                 self._last_drawn_index = 0
 
+            prev_idx = self._last_drawn_index
             self._points.append(current_point)
             self._draw_pencil_stroke(canvas, color_activo, is_final=False)
-            if hasattr(canvas.layer_mgr, 'invalidate_cache'):
-                canvas.layer_mgr.invalidate_cache()
 
             self.last_point = current_point
-            if canvas.callback_modificado:
-                canvas.callback_modificado()
-
             w = max(1, canvas.grosor_pincel)
-            p_prev = self._points[-2] if len(self._points) >= 2 else current_point
-            dirty_rect = QRectF(QPointF(p_prev), QPointF(current_point)).normalized().toRect().adjusted(-int(w) - 4, -int(w) - 4, int(w) + 8, int(w) + 8)
+            dirty_rect = compute_stroke_dirty_rect(self._points, prev_idx, int(w) + 6)
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
+            elif hasattr(canvas.layer_mgr, 'invalidate_cache'):
+                canvas.layer_mgr.invalidate_cache()
             canvas.actualizar_region_sucia(dirty_rect)
 
     def mouse_release(self, canvas, event, color_activo=None):
         if self.is_drawing:
+            prev_idx = getattr(self, '_last_drawn_index', 0)
             self._draw_pencil_stroke(canvas, color_activo, is_final=True)
+            w = max(1, canvas.grosor_pincel)
+            pts = getattr(self, '_points', [])
+            if pts and hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                dirty_rect = compute_stroke_dirty_rect(pts, prev_idx, int(w) + 6)
+                canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
             self.is_drawing = False
             self.shift_anchor = None
             self._points = []

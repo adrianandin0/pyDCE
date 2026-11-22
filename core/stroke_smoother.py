@@ -4,7 +4,28 @@ Proporciona interpolación continua C^1/C^2 y filtrado de eventos de mouse para 
 en imágenes de alta resolución (4K, 8K, 3805x5707 px).
 """
 import math
-from PyQt6.QtCore import QPointF, QPoint
+from PyQt6.QtCore import QPointF, QPoint, QRect
+
+
+def compute_stroke_dirty_rect(pts, prev_drawn_idx: int, margin: int) -> QRect:
+    """
+    Calcula el rectangulo sucio (en coordenadas de documento) garantizado para cubrir
+    todos los segmentos Bezier generados desde prev_drawn_idx hasta el final de pts,
+    aprovechando la propiedad de envolvente convexa de los puntos de control.
+    """
+    if not pts:
+        return QRect()
+    lo = max(0, prev_drawn_idx - 1)
+    window = pts[lo:]
+    if not window:
+        window = pts[-1:]
+    xs = [p.x() for p in window]
+    ys = [p.y() for p in window]
+    x0 = int(math.floor(min(xs))) - margin
+    y0 = int(math.floor(min(ys))) - margin
+    x1 = int(math.ceil(max(xs))) + margin
+    y1 = int(math.ceil(max(ys))) + margin
+    return QRect(x0, y0, max(1, x1 - x0 + 1), max(1, y1 - y0 + 1))
 
 
 def smooth_mouse_input(prev_pos, raw_pos, weight=0.15):

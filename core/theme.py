@@ -16,6 +16,8 @@ class ThemeManager:
 
     def _init_manager(self):
         self.current_theme = "Definido por el sistema"
+        self._last_applied_resolved = None
+        self._last_applied_win_id = None
         self._palettes = {
             "Oscuro": {
                 "is_dark": True,
@@ -104,12 +106,16 @@ class ThemeManager:
             tema = QSettings("PaintNotNet", "PaintNotNet").value("theme", "Definido por el sistema")
         self.current_theme = str(tema)
 
-    def establecer_tema(self, nombre_tema: str, main_window=None):
+    def establecer_tema(self, nombre_tema: str, main_window=None, forzar: bool = False):
         self.current_theme = nombre_tema
         res_nombre = self.resolver_nombre_tema(nombre_tema)
 
         app = QApplication.instance()
         if not app:
+            return
+
+        win_id = id(main_window) if main_window is not None else None
+        if not forzar and self._last_applied_resolved == res_nombre and self._last_applied_win_id == win_id:
             return
 
         if main_window and hasattr(main_window, 'tab_widget') and main_window.tab_widget:
@@ -143,7 +149,6 @@ class ThemeManager:
         app.setPalette(app_pal)
 
         chk_img = "url(gui/iconos/check.png)"
-        radio_border = f"3px solid {inp_bg}"
 
         qss = f"""
         QMainWindow, QDialog, QDockWidget > QWidget {{
@@ -154,7 +159,7 @@ class ThemeManager:
             color: {txt};
         }}
         QCheckBox, QRadioButton {{
-            color: {txt} !important;
+            color: {txt};
             spacing: 5px;
         }}
         QCheckBox::indicator {{
@@ -275,7 +280,7 @@ class ThemeManager:
         }}
         QTabWidget::pane {{
             border: none;
-            background-color: {c_bg} !important;
+            background-color: {c_bg};
         }}
         QTabWidget::tab-bar {{
             alignment: left;
@@ -293,7 +298,7 @@ class ThemeManager:
             min-width: 125px;
         }}
         QTabBar::tab:selected {{
-            background: {c_bg} !important;
+            background: {c_bg};
             color: {txt};
             border-color: {acc};
             font-weight: normal;
@@ -303,7 +308,7 @@ class ThemeManager:
             color: {txt};
         }}
         QScrollArea, QScrollArea > QWidget, QScrollArea > QWidget > QWidget {{
-            background-color: {c_bg} !important;
+            background-color: {c_bg};
             border: none;
         }}
         QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {{
@@ -376,18 +381,22 @@ class ThemeManager:
         }}
         """
         app.setStyleSheet(qss)
+        self._last_applied_resolved = res_nombre
+        self._last_applied_win_id = win_id
 
         if main_window:
             if hasattr(main_window, 'tab_widget') and main_window.tab_widget:
                 for idx in range(main_window.tab_widget.count()):
                     scroll = main_window.tab_widget.widget(idx)
                     if scroll:
-                        scroll.setStyleSheet(f"QScrollArea, QScrollArea > QWidget, QScrollArea > QWidget > QWidget {{ background-color: {c_bg} !important; border: none; }}")
+                        scroll.setStyleSheet(f"QScrollArea, QScrollArea > QWidget, QScrollArea > QWidget > QWidget {{ background-color: {c_bg}; border: none; }}")
                         if hasattr(scroll, 'viewport') and scroll.viewport():
-                            scroll.viewport().setStyleSheet(f"background-color: {c_bg} !important;")
+                            scroll.viewport().setStyleSheet(f"background-color: {c_bg};")
                         if hasattr(scroll, 'widget') and scroll.widget():
                             c = scroll.widget()
                             c._bg_checker_brush = None
+                            if hasattr(c, 'renderer') and c.renderer and hasattr(c.renderer, 'invalidate_checkerboard_cache'):
+                                c.renderer.invalidate_checkerboard_cache()
                             c.update()
             if hasattr(main_window, 'color_panel') and main_window.color_panel:
                 main_window.color_panel.setStyleSheet(f"ColorPanelWidget {{ background-color: {p_bg}; }}")

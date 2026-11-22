@@ -33,9 +33,10 @@ class TextPanelWidget(QWidget):
         self.lbl_fuente.setStyleSheet(lbl_style)
         layout.addWidget(self.lbl_fuente)
 
+        from gui.ui_helpers import ajustar_tamano_spinbox, ajustar_altura_campo
         self.font_combo = QFontComboBox()
-        self.font_combo.setFixedHeight(20)
         self.font_combo.setStyleSheet("font-size: 11px; color: #EDEDED;")
+        ajustar_altura_campo(self.font_combo, padding_y=6, min_height=22)
         self.font_combo.currentFontChanged.connect(
             lambda f: self._emitir_cambio_parcial({"font_family": f.family() if isinstance(f, QFont) else str(f)})
         )
@@ -50,9 +51,9 @@ class TextPanelWidget(QWidget):
         self.spin_size = QSpinBox()
         self.spin_size.setRange(1, 9999)
         self.spin_size.setValue(12)
-        self.spin_size.setFixedHeight(20)
         self.spin_size.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
         self.spin_size.setStyleSheet("font-size: 11px; color: #EDEDED;")
+        ajustar_tamano_spinbox(self.spin_size, "9999", padding_x=16, padding_y=6, min_width=48, min_height=22)
         self.spin_size.valueChanged.connect(
             lambda v: self._emitir_cambio_parcial({"font_size": int(v), "size": int(v)})
         )
@@ -168,7 +169,7 @@ class TextPanelWidget(QWidget):
 
         layout.addStretch()
         self.setLayout(layout)
-        self.setFixedWidth(155)
+        self.setMinimumWidth(155)
 
         self.actualizar_estilo_tema()
 

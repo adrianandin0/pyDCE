@@ -49,6 +49,7 @@ class StrokePanelWidget(QWidget):
         layout.addWidget(group_forma)
 
         # --- Ancho ---
+        from gui.ui_helpers import ajustar_tamano_spinbox
         layout_ancho = QHBoxLayout()
         lbl_ancho = QLabel("Ancho:")
         lbl_ancho.setStyleSheet("font-size: 9px; font-weight: normal;")
@@ -56,8 +57,8 @@ class StrokePanelWidget(QWidget):
         self.spin_ancho.setRange(1, 500)
         self.spin_ancho.setValue(2)
         self.spin_ancho.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
-        self.spin_ancho.setFixedWidth(36)
         self.spin_ancho.setStyleSheet("font-size: 9px;")
+        ajustar_tamano_spinbox(self.spin_ancho, "500", padding_x=14, padding_y=6, min_width=42, min_height=20)
         self.spin_ancho.valueChanged.connect(self._on_ancho_changed)
         layout_ancho.addWidget(lbl_ancho)
         layout_ancho.addWidget(self.spin_ancho)

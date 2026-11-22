@@ -250,15 +250,16 @@ class AdvancedColorPanelWidget(QWidget):
         grid.setHorizontalSpacing(4)
         grid.setVerticalSpacing(3)
 
+        from gui.ui_helpers import ajustar_tamano_spinbox, ajustar_altura_campo
+
         # R
         self.lbl_r = QLabel("R:")
         grid.addWidget(self.lbl_r, 0, 0)
         self.slider_r = GradientSliderWidget(0, 255, "red")
         self.spin_r = QSpinBox()
         self.spin_r.setRange(0, 255)
-        self.spin_r.setFixedWidth(38)
-        self.spin_r.setFixedHeight(17)
         self.spin_r.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        ajustar_tamano_spinbox(self.spin_r, "255", padding_x=14, padding_y=4, min_width=42, min_height=20)
         grid.addWidget(self.slider_r, 0, 1)
         grid.addWidget(self.spin_r, 0, 2)
 
@@ -268,9 +269,8 @@ class AdvancedColorPanelWidget(QWidget):
         self.slider_g = GradientSliderWidget(0, 255, "green")
         self.spin_g = QSpinBox()
         self.spin_g.setRange(0, 255)
-        self.spin_g.setFixedWidth(38)
-        self.spin_g.setFixedHeight(17)
         self.spin_g.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        ajustar_tamano_spinbox(self.spin_g, "255", padding_x=14, padding_y=4, min_width=42, min_height=20)
         grid.addWidget(self.slider_g, 1, 1)
         grid.addWidget(self.spin_g, 1, 2)
 
@@ -280,9 +280,8 @@ class AdvancedColorPanelWidget(QWidget):
         self.slider_b = GradientSliderWidget(0, 255, "blue")
         self.spin_b = QSpinBox()
         self.spin_b.setRange(0, 255)
-        self.spin_b.setFixedWidth(38)
-        self.spin_b.setFixedHeight(17)
         self.spin_b.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        ajustar_tamano_spinbox(self.spin_b, "255", padding_x=14, padding_y=4, min_width=42, min_height=20)
         grid.addWidget(self.slider_b, 2, 1)
         grid.addWidget(self.spin_b, 2, 2)
 
@@ -291,7 +290,7 @@ class AdvancedColorPanelWidget(QWidget):
         grid.addWidget(self.lbl_hex, 3, 0)
         self.txt_hex = QLineEdit("000000")
         self.txt_hex.setMaxLength(7)
-        self.txt_hex.setFixedHeight(17)
+        ajustar_altura_campo(self.txt_hex, padding_y=4, min_height=20)
         grid.addWidget(self.txt_hex, 3, 1)
 
         # M (Matiz / Hue)
@@ -300,9 +299,8 @@ class AdvancedColorPanelWidget(QWidget):
         self.slider_h = GradientSliderWidget(0, 360, "hue")
         self.spin_h = QSpinBox()
         self.spin_h.setRange(0, 360)
-        self.spin_h.setFixedWidth(38)
-        self.spin_h.setFixedHeight(17)
         self.spin_h.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        ajustar_tamano_spinbox(self.spin_h, "360", padding_x=14, padding_y=4, min_width=42, min_height=20)
         grid.addWidget(self.slider_h, 4, 1)
         grid.addWidget(self.spin_h, 4, 2)
 
@@ -312,9 +310,8 @@ class AdvancedColorPanelWidget(QWidget):
         self.slider_s = GradientSliderWidget(0, 100, "sat")
         self.spin_s = QSpinBox()
         self.spin_s.setRange(0, 100)
-        self.spin_s.setFixedWidth(38)
-        self.spin_s.setFixedHeight(17)
         self.spin_s.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        ajustar_tamano_spinbox(self.spin_s, "100", padding_x=14, padding_y=4, min_width=42, min_height=20)
         grid.addWidget(self.slider_s, 5, 1)
         grid.addWidget(self.spin_s, 5, 2)
 
@@ -324,9 +321,8 @@ class AdvancedColorPanelWidget(QWidget):
         self.slider_v = GradientSliderWidget(0, 100, "val")
         self.spin_v = QSpinBox()
         self.spin_v.setRange(0, 100)
-        self.spin_v.setFixedWidth(38)
-        self.spin_v.setFixedHeight(17)
         self.spin_v.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        ajustar_tamano_spinbox(self.spin_v, "100", padding_x=14, padding_y=4, min_width=42, min_height=20)
         grid.addWidget(self.slider_v, 6, 1)
         grid.addWidget(self.spin_v, 6, 2)
 

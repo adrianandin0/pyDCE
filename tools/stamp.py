@@ -5,7 +5,7 @@ from PyQt6.QtCore import Qt, QPointF, QRectF, QRect, QPoint
 from PyQt6.QtGui import QPainter, QPen, QColor, QImage, QBrush, QBitmap, QPainterPath
 from tools.base_tool import BaseTool
 from core.i18n import t
-from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input
+from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input, compute_stroke_dirty_rect
 
 
 class StampTool(BaseTool):
@@ -28,13 +28,18 @@ class StampTool(BaseTool):
         painter.save()
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, suavizado)
 
-        # Vista previa semi-transparente de la estampa capturada
+        # Vista previa semi-transparente de la estampa capturada (cacheada por tamano y textura)
         if self.captured_texture and not self.captured_texture.isNull():
-            scaled_img = self.captured_texture.scaled(
-                int(size), int(size),
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation
-            )
+            sz_i = max(1, int(size))
+            tex_key = (self.captured_texture.cacheKey(), sz_i)
+            if getattr(self, '_cached_preview_key', None) != tex_key or getattr(self, '_cached_preview_img', None) is None:
+                self._cached_preview_img = self.captured_texture.scaled(
+                    sz_i, sz_i,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                self._cached_preview_key = tex_key
+            scaled_img = self._cached_preview_img
             preview_rect = QRectF(pos.x() - r, pos.y() - r, size, size)
             painter.setOpacity(0.55)
             
@@ -82,15 +87,23 @@ class StampTool(BaseTool):
             self._points = [pos]
             self._last_drawn_index = 0
             self._apply_stamp(canvas, active_layer, pos, radius)
-            canvas.update()
+            dirty_rect = compute_stroke_dirty_rect(self._points, 0, int(grosor) + 8)
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
+            canvas.actualizar_region_sucia(dirty_rect)
 
     def mouse_move(self, canvas, event, color_activo=None):
         if self.is_drawing and self.captured_texture and not self.captured_texture.isNull():
             raw_pos = event.position()
             pos = smooth_mouse_input(self._points[-1] if self._points else None, raw_pos)
+            prev_idx = self._last_drawn_index
             self._points.append(pos)
             self._stamp_stroke(canvas, is_final=False)
-            canvas.update()
+            grosor = max(2, getattr(canvas, 'grosor_pincel', 30))
+            dirty_rect = compute_stroke_dirty_rect(self._points, prev_idx, int(grosor) + 8)
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
+            canvas.actualizar_region_sucia(dirty_rect)
 
     def mouse_release(self, canvas, event, color_activo=None):
         if self.is_drawing:
@@ -98,6 +111,8 @@ class StampTool(BaseTool):
             self.is_drawing = False
             self._points = []
             self._last_drawn_index = 0
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region()
             if hasattr(canvas, 'push_document_state'):
                 canvas.push_document_state(self.name)
             canvas.update()

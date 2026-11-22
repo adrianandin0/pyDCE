@@ -165,14 +165,14 @@ class TopToolBarWidget(QToolBar):
         self.lbl_grosor.setStyleSheet("font-size: 11px; font-weight: normal;")
         self.act_lbl_grosor = self.addWidget(self.lbl_grosor)
 
+        from gui.ui_helpers import ajustar_tamano_spinbox
         self.spin_grosor = QSpinBox()
         self.spin_grosor.setRange(1, 9999)
         self.spin_grosor.setValue(3)
         self.spin_grosor.setSuffix(" px")
-        self.spin_grosor.setFixedWidth(65)
-        self.spin_grosor.setFixedHeight(22)
         self.spin_grosor.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
         self.spin_grosor.setStyleSheet("font-size: 11px; padding: 1px 4px;")
+        ajustar_tamano_spinbox(self.spin_grosor, "9999 px", padding_x=18, padding_y=6, min_width=65, min_height=22)
         self.spin_grosor.valueChanged.connect(self._on_grosor_changed)
         self.act_spin_grosor = self.addWidget(self.spin_grosor)
 
@@ -661,14 +661,14 @@ class TopToolBarWidget(QToolBar):
         self.lbl_texto_tam.setStyleSheet("font-size: 11px; font-weight: normal;")
         self.act_lbl_texto_tam = self.addWidget(self.lbl_texto_tam)
 
+        from gui.ui_helpers import ajustar_tamano_spinbox
         self.spin_texto_tam = QSpinBox()
         self.spin_texto_tam.setRange(1, 9999)
         self.spin_texto_tam.setValue(12)
         self.spin_texto_tam.setSuffix(" px")
-        self.spin_texto_tam.setFixedHeight(22)
-        self.spin_texto_tam.setFixedWidth(58)
         self.spin_texto_tam.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
         self.spin_texto_tam.setStyleSheet("font-size: 11px;")
+        ajustar_tamano_spinbox(self.spin_texto_tam, "9999 px", padding_x=18, padding_y=6, min_width=62, min_height=22)
         self.spin_texto_tam.valueChanged.connect(
             lambda v: self._emitir_cambio_texto_parcial({"font_size": int(v), "size": int(v)})
         )
@@ -772,10 +772,9 @@ class TopToolBarWidget(QToolBar):
         self.spin_texto_borde = QSpinBox()
         self.spin_texto_borde.setRange(1, 200)
         self.spin_texto_borde.setValue(4)
-        self.spin_texto_borde.setFixedHeight(22)
-        self.spin_texto_borde.setFixedWidth(36)
         self.spin_texto_borde.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
         self.spin_texto_borde.setStyleSheet("font-size: 11px;")
+        ajustar_tamano_spinbox(self.spin_texto_borde, "200", padding_x=14, padding_y=6, min_width=40, min_height=22)
         self.spin_texto_borde.valueChanged.connect(self._emitir_cambio_efectos)
         self.act_spin_texto_borde = self.addWidget(self.spin_texto_borde)
 
@@ -793,10 +792,9 @@ class TopToolBarWidget(QToolBar):
         self.spin_texto_glow = QSpinBox()
         self.spin_texto_glow.setRange(1, 200)
         self.spin_texto_glow.setValue(10)
-        self.spin_texto_glow.setFixedHeight(22)
-        self.spin_texto_glow.setFixedWidth(36)
         self.spin_texto_glow.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
         self.spin_texto_glow.setStyleSheet("font-size: 11px;")
+        ajustar_tamano_spinbox(self.spin_texto_glow, "200", padding_x=14, padding_y=6, min_width=40, min_height=22)
         self.spin_texto_glow.valueChanged.connect(self._emitir_cambio_efectos)
         self.act_spin_texto_glow = self.addWidget(self.spin_texto_glow)
 
@@ -814,10 +812,9 @@ class TopToolBarWidget(QToolBar):
         self.spin_texto_shadow = QSpinBox()
         self.spin_texto_shadow.setRange(1, 200)
         self.spin_texto_shadow.setValue(10)
-        self.spin_texto_shadow.setFixedHeight(22)
-        self.spin_texto_shadow.setFixedWidth(36)
         self.spin_texto_shadow.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
         self.spin_texto_shadow.setStyleSheet("font-size: 11px;")
+        ajustar_tamano_spinbox(self.spin_texto_shadow, "200", padding_x=14, padding_y=6, min_width=40, min_height=22)
         self.spin_texto_shadow.valueChanged.connect(self._emitir_cambio_efectos)
         self.act_spin_texto_shadow = self.addWidget(self.spin_texto_shadow)
 

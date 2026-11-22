@@ -4,7 +4,7 @@ from PyQt6.QtCore import Qt, QPointF, QRectF
 from PyQt6.QtGui import QPainter, QPen, QColor, QBrush, QImage
 from tools.base_tool import BaseTool
 from PyQt6.QtWidgets import QApplication
-from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input
+from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input, compute_stroke_dirty_rect
 
 
 class SprayTool(BaseTool):
@@ -16,6 +16,7 @@ class SprayTool(BaseTool):
         self._last_pos = None
         # Registro de gotas activas durante el trazo: (gx, gy) -> { 'start_x': float, 'start_y': float, 'length': float }
         self.active_drips = {}
+        self._step_drip_bottom = None
 
     def draw_handles(self, painter, canvas):
         if canvas.cursor_pos is None:
@@ -55,11 +56,18 @@ class SprayTool(BaseTool):
             self._last_drawn_index = 0
             self.shift_anchor = None
             self.active_drips = {}
+            self._step_drip_bottom = None
             color = color_activo if color_activo else (canvas.color_primario if event.button() == Qt.MouseButton.LeftButton else canvas.color_secundario)
             self._spray_at(canvas, pos, color)
-            if hasattr(canvas.layer_mgr, 'invalidate_cache'):
+            grosor = max(2, getattr(canvas, 'grosor_pincel', 15))
+            dirty_rect = compute_stroke_dirty_rect(self._points, 0, int(grosor) + 12)
+            if self._step_drip_bottom is not None:
+                dirty_rect.setBottom(max(dirty_rect.bottom(), int(math.ceil(self._step_drip_bottom)) + 8))
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
+            elif hasattr(canvas.layer_mgr, 'invalidate_cache'):
                 canvas.layer_mgr.invalidate_cache()
-            canvas.update()
+            canvas.actualizar_region_sucia(dirty_rect)
 
     def mouse_move(self, canvas, event, color_activo=None):
         if self.is_drawing:
@@ -84,17 +92,21 @@ class SprayTool(BaseTool):
                 self._points = [self._last_pos if self._last_pos else pos]
                 self._last_drawn_index = 0
 
+            prev_idx = self._last_drawn_index
+            self._step_drip_bottom = None
             self._points.append(pos)
             color = color_activo if color_activo else (canvas.color_primario if event.buttons() & Qt.MouseButton.LeftButton else canvas.color_secundario)
             self._spray_stroke(canvas, color, is_final=False)
 
             self._last_pos = pos
-            if hasattr(canvas.layer_mgr, 'invalidate_cache'):
-                canvas.layer_mgr.invalidate_cache()
-
             grosor = max(2, getattr(canvas, 'grosor_pincel', 15))
-            p_prev = self._points[-2] if (hasattr(self, '_points') and len(self._points) >= 2) else pos
-            dirty_rect = QRectF(p_prev, pos).normalized().toRect().adjusted(-grosor - 10, -grosor - 10, grosor + 20, grosor + 20)
+            dirty_rect = compute_stroke_dirty_rect(self._points, prev_idx, int(grosor) + 12)
+            if self._step_drip_bottom is not None:
+                dirty_rect.setBottom(max(dirty_rect.bottom(), int(math.ceil(self._step_drip_bottom)) + 8))
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
+            elif hasattr(canvas.layer_mgr, 'invalidate_cache'):
+                canvas.layer_mgr.invalidate_cache()
             canvas.actualizar_region_sucia(dirty_rect)
 
     def mouse_release(self, canvas, event, color_activo=None):
@@ -107,7 +119,10 @@ class SprayTool(BaseTool):
             self._points = []
             self._last_drawn_index = 0
             self.active_drips = {}
-            if hasattr(canvas.layer_mgr, 'invalidate_cache'):
+            self._step_drip_bottom = None
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region()
+            elif hasattr(canvas.layer_mgr, 'invalidate_cache'):
                 canvas.layer_mgr.invalidate_cache()
             if hasattr(canvas, 'push_document_state'):
                 canvas.push_document_state(self.name)
@@ -245,5 +260,7 @@ class SprayTool(BaseTool):
             # Dibujar la gota/bulbo redondeado en la punta inferior
             bulb_r = min(3.0, 1.2 + (drip_info['length'] * 0.03))
             painter.drawEllipse(QPointF(drip_x, drip_bottom), bulb_r, bulb_r)
+            if self._step_drip_bottom is None or (drip_bottom + bulb_r) > self._step_drip_bottom:
+                self._step_drip_bottom = drip_bottom + bulb_r
 
         painter.end()

@@ -27,7 +27,6 @@ class EyedropperTool(BaseTool):
         pos = self._get_pixel_pos(event)
         self.current_pos = pos
         self.update_color(canvas, pos)
-        canvas.update()
 
     def mouse_release(self, canvas, event, color_activo=None):
         if self.is_picking:

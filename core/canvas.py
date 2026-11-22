@@ -25,17 +25,29 @@ def comprobar_soporte_opengl() -> bool:
         return False
     try:
         from PyQt6.QtWidgets import QApplication
-        from PyQt6.QtOpenGLWidgets import QOpenGLWidget
+        from PyQt6.QtGui import QOffscreenSurface, QOpenGLContext
         app = QApplication.instance()
         if not app:
             return False
-        w = QOpenGLWidget()
-        w.resize(10, 10)
-        w.show()
-        app.processEvents()
-        valid = w.isValid()
-        w.close()
-        w.deleteLater()
+
+        surface = QOffscreenSurface()
+        surface.create()
+        if not surface.isValid():
+            surface.destroy()
+            _OPENGL_SUPPORTED_CACHE = False
+            return False
+
+        ctx = QOpenGLContext()
+        valid = False
+        try:
+            if ctx.create() and ctx.makeCurrent(surface):
+                fmt = ctx.format()
+                # Rechazar drivers software heredados (ej. OpenGL 1.1 GDI Generic en Windows)
+                valid = bool(ctx.isValid() and fmt.majorVersion() >= 2)
+                ctx.doneCurrent()
+        finally:
+            surface.destroy()
+
         _OPENGL_SUPPORTED_CACHE = valid
         return valid
     except Exception:
@@ -314,6 +326,8 @@ class CanvasWidget(QWidget):
                 self.main_window.bottom_bar.sync_zoom_from_canvas(self.scale_factor)
         if hasattr(self, 'container') and self.container and hasattr(self.container, 'update_rulers'):
             self.container.update_rulers()
+        if hasattr(self, 'input_handler') and self.input_handler and hasattr(self.input_handler, 'reset_cursor_overlay_rect'):
+            self.input_handler.reset_cursor_overlay_rect()
         self.update()
 
     def get_scroll_area(self):
@@ -473,10 +487,13 @@ class CanvasWidget(QWidget):
             self.main_window.top_toolbar.update_tool_states(tool_object)
 
         self.actualizar_cursor_herramienta(tool_object)
+        if hasattr(self, 'input_handler') and self.input_handler and hasattr(self.input_handler, 'reset_cursor_overlay_rect'):
+            self.input_handler.reset_cursor_overlay_rect()
 
         # Hook de activación: llamar on_activate si la herramienta lo define
         if hasattr(tool_object, 'on_activate'):
             tool_object.on_activate(self)
+        self.update()
 
     def obtener_cursor_custom_herramienta(self, tool_object=None):
         """Genera y devuelve el QCursor personalizado (32x32 con cruz y la insignia en escala de grises)."""
@@ -663,69 +680,124 @@ class CanvasWidget(QWidget):
             return True
         return False
 
-    def render_canvas(self, painter: QPainter):
+    def render_canvas(self, painter: QPainter, dirty_widget_rect=None):
         """Renderiza todo el contenido del lienzo (capas, fondo, selección, reglas y herramientas)."""
-        # Fondo uniforme según el tema activo
+        from core.perf_monitor import perf_monitor
+        _t0 = None
+        if perf_monitor.enabled:
+            import time
+            _t0 = time.perf_counter()
+        try:
+            self._render_canvas_impl(painter, dirty_widget_rect=dirty_widget_rect)
+        finally:
+            if _t0 is not None:
+                import time
+                perf_monitor.record_render((time.perf_counter() - _t0) * 1000.0)
+
+    def _has_active_tool_preview(self) -> bool:
+        """Indica si la herramienta activa realmente sobrescribe draw_preview."""
+        tool = getattr(self, 'active_tool_obj', None)
+        if tool is None:
+            return False
+        from tools.base_tool import BaseTool
+        if isinstance(tool, BaseTool):
+            return type(tool).draw_preview is not BaseTool.draw_preview
+        return hasattr(tool, 'draw_preview')
+
+    def _render_canvas_impl(self, painter: QPainter, dirty_widget_rect=None):
+        # Determinar rectangulo sucio/visible en coordenadas de widget
+        widget_rect = self.rect()
+        if dirty_widget_rect is not None and not dirty_widget_rect.isEmpty():
+            bg_rect = widget_rect.intersected(dirty_widget_rect)
+        elif painter.hasClipping():
+            bg_rect = widget_rect.intersected(painter.clipBoundingRect().toAlignedRect())
+        else:
+            bg_rect = widget_rect
+
+        if bg_rect.isEmpty():
+            return
+
+        # Fondo uniforme según el tema activo (solo region visible/sucia)
         from core.theme import ThemeManager
         bg_col = ThemeManager().obtener_color_area_canvas()
-        painter.fillRect(self.rect(), bg_col)
+        painter.fillRect(bg_rect, bg_col)
 
         off_x, off_y = self.obtener_offset_canvas()
+        sf = self.scale_factor if self.scale_factor > 0 else 1.0
+
+        # Dimensiones reales del lienzo/capa
+        l_width = self.layer_mgr.width
+        l_height = self.layer_mgr.height
+
+        # Proyectar bg_rect a coordenadas de documento (con margen de 2 px para redondeo/suavizado)
+        import math
+        doc_x0 = max(0, int(math.floor((bg_rect.left() - off_x) / sf)) - 2)
+        doc_y0 = max(0, int(math.floor((bg_rect.top() - off_y) / sf)) - 2)
+        doc_x1 = min(l_width, int(math.ceil((bg_rect.right() + 1 - off_x) / sf)) + 2)
+        doc_y1 = min(l_height, int(math.ceil((bg_rect.bottom() + 1 - off_y) / sf)) + 2)
+        vis_doc_rect = QRect(doc_x0, doc_y0, max(0, doc_x1 - doc_x0), max(0, doc_y1 - doc_y0))
+
         painter.save()
         painter.translate(off_x, off_y)
 
-        if self.scale_factor >= 2.0:
+        if sf >= 2.0:
             painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, False)
             painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
         else:
             painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
             painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
 
-        if self.scale_factor != 1.0:
-            painter.scale(self.scale_factor, self.scale_factor)
+        if sf != 1.0:
+            painter.scale(sf, sf)
 
-        # Dimensiones reales del lienzo/capa
-        l_width = self.layer_mgr.width
-        l_height = self.layer_mgr.height
+        # --- DIBUJAR FONDO CUADRICULADO DEL LIENZO (solo region visible/sucia) ---
+        if not vis_doc_rect.isEmpty() and hasattr(self, 'renderer') and self.renderer:
+            self.renderer.draw_checkerboard_pattern(painter, l_width, l_height, visible_rect=QRectF(vis_doc_rect))
 
-        # --- DIBUJAR FONDO CUADRICULADO DEL LIENZO ---
-        if hasattr(self, 'renderer') and self.renderer:
-            self.renderer.draw_checkerboard_pattern(painter, l_width, l_height)
+        tool = getattr(self, 'active_tool_obj', None)
+        is_transforming = (getattr(tool, 'name', '') == "Transformar" and getattr(tool, '_is_active', False))
+        has_floating = bool(
+            not is_transforming
+            and self.selection_engine.floating_image is not None
+            and not self.selection_engine.floating_image.isNull()
+        )
+        has_tool_preview = self._has_active_tool_preview()
 
-        def _dibujar_preview_capa_activa(p_capa):
-            is_transforming = (getattr(self.active_tool_obj, 'name', '') == "Transformar" and getattr(self.active_tool_obj, '_is_active', False))
-            if not is_transforming and self.selection_engine.floating_image and not self.selection_engine.floating_image.isNull():
-                p_capa.save()
-                p_capa.setClipRect(0, 0, l_width, l_height)
-                p_capa.drawImage(self.selection_engine.original_image_pos, self.selection_engine.floating_image)
-                p_capa.restore()
-            if hasattr(self.active_tool_obj, 'draw_preview'):
-                self.active_tool_obj.draw_preview(p_capa, self)
+        preview_cb = None
+        if has_floating or has_tool_preview:
+            def _dibujar_preview_capa_activa(p_capa):
+                if has_floating:
+                    p_capa.save()
+                    p_capa.setClipRect(0, 0, l_width, l_height)
+                    p_capa.drawImage(self.selection_engine.original_image_pos, self.selection_engine.floating_image)
+                    p_capa.restore()
+                if has_tool_preview:
+                    tool.draw_preview(p_capa, self)
+            preview_cb = _dibujar_preview_capa_activa
 
-        live_recomp = self._necesita_recomposicion_en_vivo()
-        if (
-            live_recomp or
-            getattr(self, 'content_dirty', False) or
-            not hasattr(self, '_cached_composite_pixmap') or
-            self._cached_composite_pixmap is None or
-            self._cached_composite_pixmap.isNull()
-        ):
-            sel_path = self.selection_engine.active_path if (self.selection_engine.has_selection() and not self.selection_engine.active_path.isEmpty()) else None
-            capa_temp = self.capa_trazo_temp if getattr(self, 'drawing', False) else None
-            self._cached_composite_pixmap = self.layer_mgr.get_qpixmap(
+        uses_temp = bool(
+            getattr(self, 'drawing', False)
+            and tool is not None
+            and (getattr(tool, 'uses_temp_stroke_layer', False) or getattr(tool, 'name', '') == 'Pincel')
+        )
+        capa_temp = self.capa_trazo_temp if uses_temp else None
+        sel_path = self.selection_engine.active_path if (self.selection_engine.has_selection() and not self.selection_engine.active_path.isEmpty()) else None
+
+        if not vis_doc_rect.isEmpty():
+            comp_img = self.layer_mgr.get_qimage(
                 capa_trazo_temp=capa_temp,
-                draw_layer_preview_callback=_dibujar_preview_capa_activa,
-                selection_path=sel_path
+                draw_layer_preview_callback=preview_cb,
+                selection_path=sel_path,
             )
-            if not live_recomp:
+            if not self._necesita_recomposicion_en_vivo():
                 self.content_dirty = False
+            if comp_img is not None and not comp_img.isNull():
+                vis_f = QRectF(vis_doc_rect)
+                painter.drawImage(vis_f, comp_img, vis_f)
 
-        if self._cached_composite_pixmap and not self._cached_composite_pixmap.isNull():
-            painter.drawPixmap(0, 0, self._cached_composite_pixmap)
-
-        # 2. Dibujar cuadrícula de píxeles si está activada
-        if getattr(self, 'show_pixel_grid', False) and hasattr(self, 'renderer') and self.renderer:
-            self.renderer.draw_pixel_grid(painter, l_width, l_height, self.scale_factor)
+        # 2. Dibujar cuadrícula de píxeles si está activada (recortada a la zona visible)
+        if not vis_doc_rect.isEmpty() and getattr(self, 'show_pixel_grid', False) and hasattr(self, 'renderer') and self.renderer:
+            self.renderer.draw_pixel_grid(painter, l_width, l_height, sf, visible_rect=QRectF(vis_doc_rect))
 
         # 3. Tiradores y controles interactivos de herramientas
         if hasattr(self.active_tool_obj, 'draw_handles'):
@@ -743,7 +815,7 @@ class CanvasWidget(QWidget):
             else:
                 painter.drawRect(self.selection_engine.active_rect)
 
-            handles = self.selection_engine.get_handles(self.scale_factor)
+            handles = self.selection_engine.get_handles(sf)
             pen_handle = QPen(QColor(0, 120, 215), 1, Qt.PenStyle.SolidLine)
             pen_handle.setCosmetic(True)
             painter.setPen(pen_handle)
@@ -753,38 +825,30 @@ class CanvasWidget(QWidget):
 
         painter.restore()
 
-        # 5. Previsualización del tamaño de trazo pegada 1:1 al puntero del mouse
+        # 5. Previsualización del tamaño de trazo para Línea (Pincel, Lápiz y Goma ya dibujan su cursor exacto en draw_handles)
         if hasattr(self, 'widget_cursor_pos') and self.widget_cursor_pos is not None and getattr(self, 'active_tool_obj', None):
             tool_name = getattr(self.active_tool_obj, 'name', getattr(self.active_tool_obj, 'nombre', ''))
-            if tool_name in ("Pincel", "Lápiz", "Goma de Borrar", "Línea"):
+            if tool_name == "Línea" and getattr(self.active_tool_obj, 'state', 0) == 0:
                 w_doc = max(1, getattr(self, 'grosor_pincel', getattr(self, 'ancho_pincel', 3)))
-                w_screen = w_doc * self.scale_factor
+                w_screen = w_doc * sf
                 w2 = w_screen / 2.0
                 wx, wy = self.widget_cursor_pos.x(), self.widget_cursor_pos.y()
                 rect = QRectF(wx - w2, wy - w2, w_screen, w_screen)
 
                 painter.save()
-                color_stroke = QColor(0, 0, 0, 180) if tool_name != "Goma de Borrar" else QColor(255, 255, 255, 220)
-                pen_preview = QPen(color_stroke, 1, Qt.PenStyle.DashLine)
+                painter.setRenderHint(QPainter.RenderHint.Antialiasing, w_screen > 4.0)
+                pen_preview = QPen(QColor(0, 0, 0, 180), 1, Qt.PenStyle.DashLine)
                 pen_preview.setCosmetic(True)
                 painter.setPen(pen_preview)
 
-                if tool_name == "Goma de Borrar":
-                    painter.setBrush(QBrush(QColor(255, 255, 255, 60)))
-                else:
-                    col_p = self.color_primario
-                    painter.setBrush(QBrush(QColor(col_p.red(), col_p.green(), col_p.blue(), 60)))
-
-                forma = getattr(self, 'forma_pincel', 'Redondo')
-                if forma == 'Cuadrado' or tool_name == 'Lápiz':
-                    painter.drawRect(rect)
-                else:
-                    painter.drawEllipse(rect)
+                col_p = self.color_primario
+                painter.setBrush(QBrush(QColor(col_p.red(), col_p.green(), col_p.blue(), 60)))
+                painter.drawEllipse(rect)
                 painter.restore()
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        self.render_canvas(painter)
+        self.render_canvas(painter, dirty_widget_rect=event.rect())
 
     def _obtener_icono_herramienta_gris(self, tool_obj):
         """Devuelve un QPixmap de 16x16 en escala de grises para la herramienta activa."""
@@ -867,6 +931,7 @@ class CanvasWidget(QWidget):
         self._ajustar_tamano_widget(ancho, alto)
 
         self.layer_mgr = LayerManager(ancho, alto)
+        self.layer_mgr.on_cache_invalidated = self._on_layer_cache_invalidated
         if es_transparente:
             self.layer_mgr.buffer.fill(Qt.GlobalColor.transparent)
         else:
@@ -1021,6 +1086,7 @@ class CanvasWidget(QWidget):
         self._ajustar_tamano_widget(w, h)
 
         self.layer_mgr = LayerManager(w, h)
+        self.layer_mgr.on_cache_invalidated = self._on_layer_cache_invalidated
         self.layer_mgr.buffer = img_format.copy()
         if not getattr(self, 'lienzo_transparente_base', False):
             self.layer_mgr.capas[-1].transparent = False
@@ -1236,11 +1302,11 @@ class CanvasWidget(QWidget):
         engine = self.selection_engine
         if not engine.floating_image or engine.floating_image.isNull():
             return None
-        initial_canvas = self.floating_initial_canvas.copy() if (hasattr(self, 'floating_initial_canvas') and self.floating_initial_canvas) else None
+        initial_canvas = QImage(self.floating_initial_canvas) if (hasattr(self, 'floating_initial_canvas') and self.floating_initial_canvas) else None
         return {
-            'floating_image': engine.floating_image.copy(),
-            'unscaled_floating_image': engine.unscaled_floating_image.copy() if engine.unscaled_floating_image else engine.floating_image.copy(),
-            'original_raw_image': engine.original_raw_image.copy() if getattr(engine, 'original_raw_image', None) else (engine.unscaled_floating_image.copy() if engine.unscaled_floating_image else engine.floating_image.copy()),
+            'floating_image': QImage(engine.floating_image),
+            'unscaled_floating_image': QImage(engine.unscaled_floating_image) if engine.unscaled_floating_image else QImage(engine.floating_image),
+            'original_raw_image': QImage(engine.original_raw_image) if getattr(engine, 'original_raw_image', None) else (QImage(engine.unscaled_floating_image) if engine.unscaled_floating_image else QImage(engine.floating_image)),
             'active_rect': QRectF(engine.active_rect),
             'active_path': QPainterPath(engine.active_path),
             'rotation_angle': float(getattr(engine, 'rotation_angle', 0.0)),
@@ -1270,11 +1336,11 @@ class CanvasWidget(QWidget):
             sub_idx = max(0, min(pkg.get('sub_index', 0), len(sub_hist) - 1))
             pkg = sub_hist[sub_idx]
 
-        # Formato moderno directo
+        # Formato moderno directo (Copy-on-Write)
         if 'floating_image' in pkg and pkg['floating_image'] and not pkg['floating_image'].isNull():
-            engine.floating_image = pkg['floating_image'].copy()
-            engine.unscaled_floating_image = pkg['unscaled_floating_image'].copy() if pkg.get('unscaled_floating_image') else pkg['floating_image'].copy()
-            engine.original_raw_image = pkg['original_raw_image'].copy() if pkg.get('original_raw_image') else engine.unscaled_floating_image.copy()
+            engine.floating_image = QImage(pkg['floating_image'])
+            engine.unscaled_floating_image = QImage(pkg['unscaled_floating_image']) if pkg.get('unscaled_floating_image') else QImage(pkg['floating_image'])
+            engine.original_raw_image = QImage(pkg['original_raw_image']) if pkg.get('original_raw_image') else QImage(engine.unscaled_floating_image)
             engine.active_rect = QRectF(pkg['active_rect']) if 'active_rect' in pkg else QRectF()
             engine.active_path = QPainterPath(pkg['active_path']) if 'active_path' in pkg else QPainterPath()
             engine.is_new_content = bool(pkg.get('is_new_content', False))
@@ -1301,7 +1367,7 @@ class CanvasWidget(QWidget):
                 engine.initial_unrotated_rect = QRectF(engine.active_rect)
 
             engine.original_image_pos = QPointF(pkg['original_image_pos']) if 'original_image_pos' in pkg else QPointF()
-            self.floating_initial_canvas = pkg['initial_canvas'].copy() if pkg.get('initial_canvas') else None
+            self.floating_initial_canvas = QImage(pkg['initial_canvas']) if pkg.get('initial_canvas') else None
             if hasattr(self, 'main_window') and self.main_window:
                 self.main_window.activar_herramienta_mover()
         else:
@@ -1427,15 +1493,27 @@ class CanvasWidget(QWidget):
         self.update(QRect(rx, ry, rw, rh))
 
     # --- HISTORIAL Y CAPAS MULTIPLE ---
+    @staticmethod
+    def _qimages_iguales(img1, img2) -> bool:
+        """Compara dos QImage en O(1) cuando comparten datos CoW (mismo cacheKey) y cae a comparacion por valor solo si difieren."""
+        if img1 is img2:
+            return True
+        if img1 is None or img2 is None:
+            return False
+        if hasattr(img1, 'cacheKey') and hasattr(img2, 'cacheKey'):
+            if img1.cacheKey() == img2.cacheKey():
+                return True
+        return img1 == img2
+
     def obtener_snapshot_documento(self):
-        """Genera una captura inmutable del documento para el historial."""
+        """Genera una captura inmutable del documento usando Copy-on-Write nativo de Qt6."""
         capas_copy = []
         for c in self.layer_mgr.capas:
             capas_copy.append({
                 'name': c.name,
                 'visible': c.visible,
                 'opacity': float(getattr(c, 'opacity', 1.0)),
-                'image': c.image.copy()
+                'image': QImage(c.image)
             })
         path = QPainterPath(self.selection_engine.active_path) if (hasattr(self.selection_engine, 'active_path') and self.selection_engine.has_selection()) else None
         return {
@@ -1478,7 +1556,7 @@ class CanvasWidget(QWidget):
                 return False
             if pkg1.get('rotation_angle') != pkg2.get('rotation_angle'):
                 return False
-            if pkg1.get('floating_image') != pkg2.get('floating_image'):
+            if not self._qimages_iguales(pkg1.get('floating_image'), pkg2.get('floating_image')):
                 return False
 
         # Comparar capas (visibilidad, opacidad, nombre e imagen)
@@ -1492,9 +1570,7 @@ class CanvasWidget(QWidget):
                 lay1.get('visible') != lay2.get('visible') or
                 lay1.get('opacity') != lay2.get('opacity')):
                 return False
-            img1 = lay1.get('image')
-            img2 = lay2.get('image')
-            if img1 != img2:
+            if not self._qimages_iguales(lay1.get('image'), lay2.get('image')):
                 return False
 
         return True
@@ -1520,8 +1596,6 @@ class CanvasWidget(QWidget):
 
         self.history_mgr.push_state(snap, action_name=action_name)
         self.actualizar_historial_gui()
-        if hasattr(self, 'layer_mgr') and hasattr(self.layer_mgr, 'invalidate_cache'):
-            self.layer_mgr.invalidate_cache()
         if action_name != "Lienzo inicial":
             self.marcar_modificado(True)
 
@@ -1531,7 +1605,7 @@ class CanvasWidget(QWidget):
             return
 
         if isinstance(snap, QImage):
-            self.layer_mgr.buffer = snap.copy()
+            self.layer_mgr.buffer = QImage(snap)
             if hasattr(self.layer_mgr, 'invalidate_cache'):
                 self.layer_mgr.invalidate_cache()
             self.update()
@@ -1539,7 +1613,7 @@ class CanvasWidget(QWidget):
 
         if isinstance(snap, tuple) and len(snap) == 2 and isinstance(snap[0], QImage):
             base_canvas, pkg = snap
-            self.layer_mgr.buffer = base_canvas.copy()
+            self.layer_mgr.buffer = QImage(base_canvas)
             self.restaurar_paquete_flotante(pkg)
             if hasattr(self.layer_mgr, 'invalidate_cache'):
                 self.layer_mgr.invalidate_cache()
@@ -1552,21 +1626,22 @@ class CanvasWidget(QWidget):
             snap_w = snap.get('width', self.layer_mgr.width)
             snap_h = snap.get('height', self.layer_mgr.height)
 
+            size_changed = (self.layer_mgr.width != snap_w or self.layer_mgr.height != snap_h)
             self.layer_mgr.width = snap_w
             self.layer_mgr.height = snap_h
-            self._ajustar_tamano_widget(snap_w, snap_h)
-            self.capa_trazo_temp = QImage(snap_w, snap_h, QImage.Format.Format_ARGB32_Premultiplied)
-            self.capa_trazo_temp.fill(Qt.GlobalColor.transparent)
+            if size_changed:
+                self._ajustar_tamano_widget(snap_w, snap_h)
+                self.capa_trazo_temp = QImage(snap_w, snap_h, QImage.Format.Format_ARGB32_Premultiplied)
+                self.capa_trazo_temp.fill(Qt.GlobalColor.transparent)
 
             # Preservar la capa seleccionada por el usuario (ajustada a los límites válidos)
             current_active = getattr(self.layer_mgr, 'indice_activo', 0)
 
             nuevas_capas = []
             for l_info in snap['layers']:
-                capa = Layer(l_info['name'], snap_w, snap_h, transparent=True)
+                capa = Layer(l_info['name'], snap_w, snap_h, transparent=True, image=l_info['image'])
                 capa.visible = l_info.get('visible', True)
                 capa.opacity = float(l_info.get('opacity', 1.0))
-                capa.image = l_info['image'].copy()
                 nuevas_capas.append(capa)
 
             self.layer_mgr.capas = nuevas_capas

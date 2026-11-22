@@ -204,10 +204,28 @@ class DialogoOpciones(QDialog):
             else:
                 self.chk_use_opengl.setToolTip(t("No disponible o no soportado en este sistema"))
         else:
-            use_opengl = self.settings.value("use_opengl", True, type=bool)
+            default_use_gl = (sys.platform not in ("darwin", "win32"))
+            use_opengl = self.settings.value("use_opengl", default_use_gl, type=bool)
             self.chk_use_opengl.setChecked(use_opengl)
 
         layout_perf.addLayout(row_ram)
+
+        # Mostrar consumo real actual de memoria del historial en los lienzos abiertos
+        total_hist_mb = 0.0
+        total_hist_states = 0
+        if parent and hasattr(parent, 'tab_widget') and parent.tab_widget:
+            for i in range(parent.tab_widget.count()):
+                cont = parent.tab_widget.widget(i)
+                c = getattr(cont, 'canvas', None) if cont else None
+                if c and hasattr(c, 'history_mgr') and c.history_mgr:
+                    total_hist_mb += c.history_mgr.calculate_memory_usage_mb()
+                    total_hist_states += len(c.history_mgr.history_stack)
+        self.lbl_history_usage = QLabel(
+            f"{t('Uso actual del historial:')} {total_hist_mb:.1f} MB ({total_hist_states} {t('estados')})"
+        )
+        self.lbl_history_usage.setStyleSheet("color: #999999; font-size: 11px;")
+        layout_perf.addWidget(self.lbl_history_usage)
+
         layout_perf.addWidget(self.chk_use_opengl)
         group_perf.setLayout(layout_perf)
         layout.addWidget(group_perf)

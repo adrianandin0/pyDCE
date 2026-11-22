@@ -5,11 +5,12 @@ from tools.base_tool import BaseTool
 
 
 from PyQt6.QtWidgets import QApplication
-from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input
+from core.stroke_smoother import generate_smooth_stroke_points, smooth_mouse_input, compute_stroke_dirty_rect
 
 class BrushTool(BaseTool):
     def __init__(self):
         super().__init__("Pincel", "gui/iconos/brush.png")
+        self.uses_temp_stroke_layer = True
         self.is_drawing = False
         self.path = None
         self._points = []        # puntos crudos del mouse
@@ -29,7 +30,9 @@ class BrushTool(BaseTool):
         forma = getattr(canvas, 'forma_pincel', 'Redondo')
 
         painter.save()
-        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        sf = getattr(canvas, 'scale_factor', 1.0)
+        use_aa = (forma != 'Cuadrado' and (size * sf) > 4.0)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, use_aa)
 
         pen_outer = QPen(QColor(0, 0, 0, 180), 1.5)
         pen_outer.setCosmetic(True)
@@ -67,9 +70,13 @@ class BrushTool(BaseTool):
 
             self._draw_incremental_stroke(canvas, color_activo, is_final=False)
 
-            if hasattr(canvas.layer_mgr, 'invalidate_cache'):
+            grosor = max(1, canvas.grosor_pincel)
+            dirty_rect = compute_stroke_dirty_rect(self._points, 0, int(grosor) + 6)
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
+            elif hasattr(canvas.layer_mgr, 'invalidate_cache'):
                 canvas.layer_mgr.invalidate_cache()
-            canvas.update()
+            canvas.actualizar_region_sucia(dirty_rect)
 
     def mouse_move(self, canvas, event, color_activo=None):
         if not self.is_drawing or not self._points:
@@ -92,16 +99,16 @@ class BrushTool(BaseTool):
             pos = smooth_mouse_input(self._points[-1], raw_pos, weight=0.20)
 
         self._has_moved = True
+        prev_idx = self._last_drawn_index
         self._points.append(pos)
         self._draw_incremental_stroke(canvas, color_activo, is_final=False)
-        if hasattr(canvas.layer_mgr, 'invalidate_cache'):
-            canvas.layer_mgr.invalidate_cache()
-        if canvas.callback_modificado:
-            canvas.callback_modificado()
 
         grosor = max(1, canvas.grosor_pincel)
-        p_last = self._points[-2] if len(self._points) >= 2 else pos
-        dirty_rect = QRectF(p_last, pos).normalized().toRect().adjusted(-int(grosor) - 4, -int(grosor) - 4, int(grosor) + 8, int(grosor) + 8)
+        dirty_rect = compute_stroke_dirty_rect(self._points, prev_idx, int(grosor) + 6)
+        if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+            canvas.layer_mgr.invalidate_active_layer_region(dirty_rect)
+        elif hasattr(canvas.layer_mgr, 'invalidate_cache'):
+            canvas.layer_mgr.invalidate_cache()
         canvas.actualizar_region_sucia(dirty_rect)
 
     def mouse_release(self, canvas, event, color_activo=None):
@@ -121,7 +128,9 @@ class BrushTool(BaseTool):
             canvas.capa_trazo_temp.fill(Qt.GlobalColor.transparent)
             if hasattr(canvas.layer_mgr, 'active_stroke_alpha'):
                 canvas.layer_mgr.active_stroke_alpha = 1.0
-            if hasattr(canvas.layer_mgr, 'invalidate_cache'):
+            if hasattr(canvas.layer_mgr, 'invalidate_active_layer_region'):
+                canvas.layer_mgr.invalidate_active_layer_region()
+            elif hasattr(canvas.layer_mgr, 'invalidate_cache'):
                 canvas.layer_mgr.invalidate_cache()
 
             self.path = None

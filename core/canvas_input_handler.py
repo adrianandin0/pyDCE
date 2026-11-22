@@ -2,16 +2,59 @@
 core/canvas_input_handler.py — Manejador de eventos de entrada y despacho de herramientas del lienzo.
 """
 import math
-from PyQt6.QtCore import QObject, QPoint, QPointF, Qt, QEvent
+from PyQt6.QtCore import QObject, QPoint, QPointF, QRect, Qt, QEvent
 from PyQt6.QtGui import QMouseEvent, QCursor, QPixmap, QPainter, QPen, QColor
 
 
 class CanvasInputHandler(QObject):
     """Manejador especializado de eventos de entrada del usuario (ratón, cursor y navegación)."""
 
+    _BRUSH_OVERLAY_TOOLS = (
+        'BrushTool', 'PencilTool', 'EraserTool', 'SprayTool', 'SmudgeTool', 'StampTool'
+    )
+
     def __init__(self, canvas):
         super().__init__(canvas)
         self.canvas = canvas
+        self._last_cursor_overlay_rect: QRect | None = None
+
+    def reset_cursor_overlay_rect(self):
+        self._last_cursor_overlay_rect = None
+
+    def _compute_cursor_overlay_rect(self) -> QRect | None:
+        """
+        Calcula el rectangulo en coordenadas de widget ocupado por el anillo/preview
+        del cursor de la herramienta activa, o None si la herramienta no dibuja cursor en hover.
+        """
+        tool = getattr(self.canvas, 'active_tool_obj', None)
+        pos_doc = getattr(self.canvas, 'cursor_pos', None)
+        if tool is None or pos_doc is None:
+            return None
+
+        tool_cls = tool.__class__.__name__
+        off_x, off_y = self.canvas.obtener_offset_canvas()
+        sf = self.canvas.scale_factor if self.canvas.scale_factor > 0 else 1.0
+
+        if tool_cls in self._BRUSH_OVERLAY_TOOLS or (tool_cls == 'LineTool' and getattr(tool, 'state', 0) == 0):
+            wx = float(off_x) + (float(math.floor(pos_doc.x())) + 0.5) * sf
+            wy = float(off_y) + (float(math.floor(pos_doc.y())) + 0.5) * sf
+            w_doc = max(1.0, float(getattr(self.canvas, 'grosor_pincel', getattr(self.canvas, 'ancho_pincel', 5))))
+            half_px = int(math.ceil((w_doc * 0.5 + 1.5) * sf)) + 8
+            r = QRect(int(wx) - half_px, int(wy) - half_px, half_px * 2 + 2, half_px * 2 + 2)
+            # Incluir tambien widget_cursor_pos en caso de LineTool (bloque 5 centrado en puntero exacto)
+            wpos = getattr(self.canvas, 'widget_cursor_pos', None)
+            if wpos is not None:
+                r2 = QRect(int(wpos.x()) - half_px, int(wpos.y()) - half_px, half_px * 2 + 2, half_px * 2 + 2)
+                r = r.united(r2)
+            return r
+
+        if tool_cls == 'EyedropperTool':
+            wx = float(off_x) + (float(math.floor(pos_doc.x())) + 0.5) * sf
+            wy = float(off_y) + (float(math.floor(pos_doc.y())) + 0.5) * sf
+            half_px = 20
+            return QRect(int(wx) - half_px, int(wy) - half_px, half_px * 2 + 2, half_px * 2 + 2)
+
+        return None
 
     def map_canvas_event(self, event) -> QMouseEvent:
         """Traduce las coordenadas físicas del widget a coordenadas lógicas del lienzo (tomando en cuenta offset y zoom)."""
@@ -28,10 +71,13 @@ class CanvasInputHandler(QObject):
         )
 
     def handle_leave_event(self, event):
+        prev_overlay = self._last_cursor_overlay_rect
+        self._last_cursor_overlay_rect = None
         self.canvas.cursor_pos = None
         self.canvas.widget_cursor_pos = None
         self.notify_cursor_position()
-        self.canvas.update()
+        if prev_overlay is not None and not prev_overlay.isEmpty():
+            self.canvas.update(prev_overlay)
 
     def handle_mouse_press(self, event):
         self.canvas.setFocus()
@@ -62,41 +108,69 @@ class CanvasInputHandler(QObject):
                     tool.mouse_press(self.canvas, ev, color_activo)
                 except TypeError:
                     tool.mouse_press(self.canvas, ev)
-            self.canvas.update()
+            self._last_cursor_overlay_rect = self._compute_cursor_overlay_rect()
+            if tool_name not in self._BRUSH_OVERLAY_TOOLS:
+                self.canvas.update()
 
     def handle_mouse_move(self, event):
-        self.canvas.widget_cursor_pos = event.position()
-        ev = self.map_canvas_event(event)
-        self.canvas.cursor_pos = ev.position()
-        self.notify_cursor_position()
-        color_activo = self.canvas.color_primario if (ev.buttons() & Qt.MouseButton.LeftButton) else self.canvas.color_secundario
+        from core.perf_monitor import perf_monitor
+        _t0 = None
+        if perf_monitor.enabled:
+            import time
+            _t0 = time.perf_counter()
+        try:
+            prev_overlay = self._last_cursor_overlay_rect
+            self.canvas.widget_cursor_pos = event.position()
+            ev = self.map_canvas_event(event)
+            self.canvas.cursor_pos = ev.position()
+            self.notify_cursor_position()
+            color_activo = self.canvas.color_primario if (ev.buttons() & Qt.MouseButton.LeftButton) else self.canvas.color_secundario
 
-        tool = getattr(self.canvas, 'active_tool_obj', None)
-        if tool and hasattr(tool, 'mouse_move'):
-            try:
-                tool.mouse_move(self.canvas, ev, color_activo)
-            except TypeError:
-                tool.mouse_move(self.canvas, ev)
+            tool = getattr(self.canvas, 'active_tool_obj', None)
+            if tool and hasattr(tool, 'mouse_move'):
+                try:
+                    tool.mouse_move(self.canvas, ev, color_activo)
+                except TypeError:
+                    tool.mouse_move(self.canvas, ev)
 
-        if self.canvas.drawing and self.canvas.callback_modificado:
-            self.canvas.callback_modificado()
+            curr_overlay = self._compute_cursor_overlay_rect()
+            self._last_cursor_overlay_rect = curr_overlay
 
-        tool_name = getattr(self.canvas.active_tool_obj, 'name', getattr(self.canvas.active_tool_obj, 'nombre', ''))
-        es_herramienta_trazo = tool_name in ("Pincel", "Lápiz", "Goma de Borrar", "Spray", "Tampón de Clonado", "Acuarela")
+            if self.canvas.drawing:
+                if self.canvas.callback_modificado:
+                    self.canvas.callback_modificado()
 
-        if self.canvas.drawing and es_herramienta_trazo and getattr(self.canvas, 'cursor_pos', None):
-            grosor = max(30, int(getattr(self.canvas, 'grosor_pincel', 5) * 4))
-            cx, cy = self.canvas.cursor_pos.x(), self.canvas.cursor_pos.y()
-            sf = self.canvas.scale_factor
-            off_x, off_y = self.canvas.obtener_offset_canvas()
+                tool_cls = tool.__class__.__name__ if tool else ""
+                if tool_cls in self._BRUSH_OVERLAY_TOOLS:
+                    # La herramienta ya solicito actualizar_region_sucia para el trazo;
+                    # actualizar tambien la union de las posiciones anterior y actual del anillo del cursor
+                    cursor_dirty = None
+                    if prev_overlay is not None and curr_overlay is not None:
+                        cursor_dirty = prev_overlay.united(curr_overlay)
+                    elif curr_overlay is not None:
+                        cursor_dirty = curr_overlay
+                    elif prev_overlay is not None:
+                        cursor_dirty = prev_overlay
+                    if cursor_dirty is not None and not cursor_dirty.isEmpty():
+                        self.canvas.update(cursor_dirty)
+                else:
+                    self.canvas.update()
+            else:
+                # Hover sin clic: repintar solo el rectangulo del cursor overlay si la herramienta usa uno
+                hover_dirty = None
+                if prev_overlay is not None and curr_overlay is not None:
+                    hover_dirty = prev_overlay.united(curr_overlay)
+                elif curr_overlay is not None:
+                    hover_dirty = curr_overlay
+                elif prev_overlay is not None:
+                    hover_dirty = prev_overlay
 
-            vx = int(off_x + (cx - grosor) * sf)
-            vy = int(off_y + (cy - grosor) * sf)
-            vw = int((grosor * 2) * sf)
-            vh = int((grosor * 2) * sf)
-            self.canvas.update(vx, vy, vw, vh)
-        else:
-            self.canvas.update()
+                if hover_dirty is not None and not hover_dirty.isEmpty():
+                    self.canvas.update(hover_dirty)
+        finally:
+            if _t0 is not None:
+                import time
+                perf_monitor.record_mouse_move((time.perf_counter() - _t0) * 1000.0)
 
     def handle_mouse_release(self, event):
         ev = self.map_canvas_event(event)
