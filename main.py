@@ -1012,6 +1012,10 @@ PaintNotNet = pyDCE
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    if sys.platform == "win32":
+        # El estilo nativo windows11 (Qt 6.7+) rompe QSpinBox/QToolBar combinados con QSS
+        # (campos colapsados o no clicables). Fusion es consistente con el tema propio.
+        app.setStyle("Fusion")
 
     # Filtrar argumentos de la línea de comandos para obtener rutas de archivos válidas
     archivos_args = []
