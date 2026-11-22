@@ -11,6 +11,7 @@ def ajustar_tamano_spinbox(
     padding_y: int = 6,
     min_width: int = 38,
     min_height: int = 22,
+    fijo: bool = False,
 ):
     """
     Configura el tamano minimo de un QSpinBox/QDoubleSpinBox usando QFontMetrics
@@ -20,6 +21,12 @@ def ajustar_tamano_spinbox(
     text_w = fm.horizontalAdvance(sample_text)
     calc_w = max(min_width, text_w + padding_x)
     calc_h = max(min_height, fm.height() + padding_y)
+    if fijo:
+        # En QToolBar (QWindows11Style + QSS) una politica Minimum/Expanding sin maximo
+        # provoca campos colapsados o no clicables: se usa tamano fijo calculado por fuente.
+        spin.setFixedSize(calc_w, calc_h)
+        spin.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        return
     spin.setMinimumWidth(calc_w)
     spin.setMinimumHeight(calc_h)
     spin.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
