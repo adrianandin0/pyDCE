@@ -22,6 +22,7 @@ def ajustar_tamano_spinbox(
     calc_w = max(min_width, text_w + padding_x)
     calc_h = max(min_height, fm.height() + padding_y)
     if fijo:
+        calc_h += 4  # holgura para borde QSS + descenso de fuente en Windows
         # En QToolBar (QWindows11Style + QSS) una politica Minimum/Expanding sin maximo
         # provoca campos colapsados o no clicables: se usa tamano fijo calculado por fuente.
         spin.setFixedSize(calc_w, calc_h)

@@ -319,6 +319,12 @@ class ThemeManager:
             padding: 2px 4px;
             outline: 0;
         }}
+        QSpinBox QLineEdit, QDoubleSpinBox QLineEdit {{
+            border: none;
+            padding: 0px;
+            margin: 0px;
+            background: transparent;
+        }}
         QComboBox:focus {{
             outline: 0;
         }}
