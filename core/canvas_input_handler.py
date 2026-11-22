@@ -1,6 +1,8 @@
 """
 core/canvas_input_handler.py — Manejador de eventos de entrada y despacho de herramientas del lienzo.
 """
+from __future__ import annotations
+
 import math
 from PyQt6.QtCore import QObject, QPoint, QPointF, QRect, Qt, QEvent
 from PyQt6.QtGui import QMouseEvent, QCursor, QPixmap, QPainter, QPen, QColor
