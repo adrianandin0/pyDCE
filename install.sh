@@ -32,6 +32,7 @@ echo "  01 - Español"
 echo "  02 - English"
 echo "  03 - Português"
 echo "  04 - Français"
+echo "  05 - 简体中文 (zh-CN)"
 echo ""
 read -rp "Elija una opción / Choose an option [01]: " LANG_CHOICE
 
@@ -44,6 +45,9 @@ case "$LANG_CHOICE" in
         ;;
     4|04|[Ff][Rr]|[Ff][Rr][Aa][Nn][ÇçCc][Aa][Ii][Ss]|[Ff][Rr][Aa][Nn][Cc][ÉéEe][Ss])
         SELECTED_LANG="Français"
+        ;;
+    5|05|[Zz][Hh]|[Zz][Hh]-[Cc][Nn]|[Zz][Hh]_[Cc][Nn]|[Cc][Hh][Ii][Nn][Ee][Ss][Ee]|[Cc][Hh][Ii][Nn][Oo]|中文|简体中文)
+        SELECTED_LANG="简体中文"
         ;;
     *)
         SELECTED_LANG="Español"
@@ -111,6 +115,26 @@ elif [ "$SELECTED_LANG" = "Français" ]; then
     MSG_UNINSTALL_DONE="pyDCE a été complètement désinstallé du système."
     MSG_DESKTOP_COMMENT="Éditeur d'images léger, puissant et moderne pour Linux"
     MSG_MIME_COMMENT="Projet d'image pyDCE"
+elif [ "$SELECTED_LANG" = "简体中文" ]; then
+    HEADER_TITLE="         pyDCE Linux 安装程序                                  "
+    MSG_COMPILING="[i] 正在编译最新版本的 pyDCE..."
+    MSG_NO_PYINSTALLER="[i] 正在安装 Python 依赖项和 PyInstaller..."
+    MSG_STEP1="[1/4] 正在检查系统依赖项 (Python / Pip / Qt6 / OpenGL)..."
+    MSG_DISTRO_DEBIAN="      检测到基于 Debian/Ubuntu 的发行版 (apt)。"
+    MSG_DISTRO_FEDORA="      检测到基于 Fedora/RedHat 的发行版 (dnf)。"
+    MSG_DISTRO_ARCH="      检测到基于 Arch Linux/Manjaro 的发行版 (pacman)。"
+    MSG_DISTRO_SUSE="      检测到基于 openSUSE 的发行版 (zypper)。"
+    MSG_STEP2="[2/4] 正在将应用程序文件安装到"
+    MSG_STEP3="[3/4] 正在创建桌面快捷方式并安装系统图标..."
+    MSG_STEP4="[4/4] 正在完成安装..."
+    MSG_SUCCESS="      pyDCE 安装成功！                                         "
+    MSG_LAUNCH=" 你可以从以下方式启动应用程序："
+    MSG_LAUNCH_1="   1. 系统应用程序菜单（图形 -> pyDCE）"
+    MSG_LAUNCH_2="   2. 或在任意终端中输入："
+    MSG_UNINSTALL=" 如需日后卸载程序，请运行："
+    MSG_UNINSTALL_DONE="pyDCE 已从系统中完全卸载。"
+    MSG_DESKTOP_COMMENT="面向 Linux 的轻量、强大且现代的图像编辑器"
+    MSG_MIME_COMMENT="pyDCE 图像项目"
 else
     HEADER_TITLE="         Instalador de pyDCE para Linux                       "
     MSG_COMPILING="[i] Compilando la versión más reciente de pyDCE..."

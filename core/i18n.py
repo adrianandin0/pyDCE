@@ -51,8 +51,8 @@ class I18nManager:
             codigo = "pt"
         elif "français" in lang_lower or "francais" in lang_lower or "francés" in lang_lower or "frances" in lang_lower or "french" in lang_lower:
             codigo = "fr"
-        elif "中文" in lang_lower or "chino" in lang_lower or "chinese" in lang_lower:
-            codigo = "zh"
+        elif "中文" in lang_lower or "chino" in lang_lower or "chinese" in lang_lower or "zh" in lang_lower:
+            codigo = "zh-CN"
         elif "deutsch" in lang_lower or "alemán" in lang_lower or "aleman" in lang_lower:
             codigo = "de"
         else:
@@ -60,6 +60,8 @@ class I18nManager:
 
         locales_dir = self._obtener_ruta_locales()
         archivo_json = os.path.join(locales_dir, f"{codigo}.json")
+        if codigo == "zh-CN" and not os.path.exists(archivo_json):
+            archivo_json = os.path.join(locales_dir, "zh.json")
 
         if os.path.exists(archivo_json):
             try:

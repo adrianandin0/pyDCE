@@ -950,6 +950,20 @@ class pyDCE(QMainWindow):
         if hasattr(self, 'emergency_mgr') and self.emergency_mgr:
             self.emergency_mgr.limpiar_todos()
 
+        if hasattr(self, '_single_instance_server') and self._single_instance_server:
+            try:
+                self._single_instance_server.close()
+            except Exception:
+                pass
+
+        app_inst = QApplication.instance()
+        if app_inst:
+            try:
+                app_inst.removeEventFilter(self)
+            except Exception:
+                pass
+
+        self.settings.sync()
         event.accept()
 
 from PyQt6.QtNetwork import QLocalServer, QLocalSocket
@@ -981,7 +995,7 @@ def iniciar_servidor_instancia_unica(ventana: pyDCE):
     server_name = obtener_nombre_servidor_unico()
     QLocalServer.removeServer(server_name)
 
-    server = QLocalServer()
+    server = QLocalServer(ventana)
     if not server.listen(server_name):
         return server
 
@@ -1049,4 +1063,14 @@ if __name__ == '__main__':
             ventana.menu_archivo.abrir_ruta_especifica(ruta)
 
     ventana.show()
-    sys.exit(app.exec())
+    exit_code = app.exec()
+    try:
+        sys.stdout.flush()
+        sys.stderr.flush()
+    except Exception:
+        pass
+    # En Linux con Python 3.13+/PyQt6, el atexit cleanup_on_exit de SIP puede
+    # lanzar SIGSEGV al recorrer wrappers tras destruir Qt/Wayland.
+    if sys.platform.startswith("linux"):
+        os._exit(exit_code)
+    sys.exit(exit_code)

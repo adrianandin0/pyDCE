@@ -92,10 +92,12 @@ class DialogoOpciones(QDialog):
         lbl_icon_lang = QLabel()
         lbl_icon_lang.setPixmap(QIcon("gui/iconos/languages.png").pixmap(QSize(16, 16)))
         self.combo_lang = QComboBox()
-        self.combo_lang.addItems(["Español", "English", "Português", "Français"])
+        self.combo_lang.addItems(["Español", "English", "Português", "Français", "简体中文"])
         fallback_lang = "English" if sys.platform == "darwin" else "Español"
-        default_lang = self.settings.value("language", fallback_lang)
-        idx_lang = self.combo_lang.findText(str(default_lang))
+        default_lang = str(self.settings.value("language", fallback_lang))
+        if default_lang.lower() in ("zh", "zh-cn", "zh_cn", "chinese", "chino"):
+            default_lang = "简体中文"
+        idx_lang = self.combo_lang.findText(default_lang)
         if idx_lang >= 0:
             self.combo_lang.setCurrentIndex(idx_lang)
 
@@ -560,6 +562,7 @@ class DialogoOpciones(QDialog):
         # Guardar límite de memoria del historial y aceleración GPU
         max_ram_mb = self.slider_history_ram.value()
         max_ram_mb = max(128, min(8192, round(max_ram_mb / 128.0) * 128))
+        self.settings.setValue("max_history_ram_mb", max_ram_mb)
         if sys.platform == "darwin" or not getattr(self, 'soporta_gl', True):
             self.settings.setValue("use_opengl", False)
         else:

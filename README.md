@@ -16,6 +16,10 @@
 </p>
 
 <p align="center">
+  <b>English</b> | <a href="README.es.md">Español</a> | <a href="README.pt.md">Português</a> | <a href="README.fr.md">Français</a> | <a href="README.zh-CN.md">简体中文 (zh-CN)</a>
+</p>
+
+<p align="center">
   <img src="gui/screenshot.png" alt="pyDCE Screenshot" width="90%">
 </p>
 
@@ -47,7 +51,7 @@
 ## Key Features
 
 - **Modern UI**: Light and dark themes (including a theme-aware transparency checkerboard).
-- **Multi-language Support (i18n)**: Spanish, English, French, and Portuguese, with live switching from *Options → User Preferences* (no restart required).
+- **Multi-language Support (i18n)**: Spanish, English, French, Portuguese, and Simplified Chinese (`zh-CN`), with live switching from *Options → User Preferences* (no restart required).
 - **Layers**: Thumbnails, visibility, opacity, reordering, duplication, and merging.
 - **Full History (Undo / Redo)**: Immutable document snapshots powered by Copy-on-Write.
 - **Native `.pnn` Format**: Layered project format with transparency support; automatic MIME association for double-click opening.
@@ -184,7 +188,7 @@ The `install.sh` script sets up a virtual environment, installs dependencies, co
 ```bash
 sudo ./install.sh
 ```
-Select your preferred language (01 - Spanish / 02 - English / 03 - French / 04 - Portuguese). Once finished, launch pyDCE from your application menu or by running:
+Select your preferred language (01 - Spanish / 02 - English / 03 - Portuguese / 04 - French / 05 - Simplified Chinese `zh-CN`). Once finished, launch pyDCE from your application menu or by running:
 ```bash
 pydce
 ```

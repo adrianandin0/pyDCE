@@ -20,6 +20,7 @@ echo   01 - Español
 echo   02 - English
 echo   03 - Português
 echo   04 - Français
+echo   05 - 简体中文 (zh-CN)
 echo.
 set /p LANG_CHOICE="Elija una opción / Choose an option [01]: "
 
@@ -35,6 +36,11 @@ if "%LANG_CHOICE%"=="4" set SELECTED_LANG=Français
 if "%LANG_CHOICE%"=="04" set SELECTED_LANG=Français
 if "%LANG_CHOICE%"=="fr" set SELECTED_LANG=Français
 if "%LANG_CHOICE%"=="FR" set SELECTED_LANG=Français
+if "%LANG_CHOICE%"=="5" set SELECTED_LANG=简体中文
+if "%LANG_CHOICE%"=="05" set SELECTED_LANG=简体中文
+if /I "%LANG_CHOICE%"=="zh" set SELECTED_LANG=简体中文
+if /I "%LANG_CHOICE%"=="zh-CN" set SELECTED_LANG=简体中文
+if /I "%LANG_CHOICE%"=="zh_CN" set SELECTED_LANG=简体中文
 if not defined SELECTED_LANG set SELECTED_LANG=Español
 
 echo.
