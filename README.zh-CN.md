@@ -23,6 +23,9 @@
   <img src="gui/screenshot.png" alt="pyDCE 界面截图" width="90%">
 </p>
 
+> [!NOTE]
+> 如果您有兴趣协助改进 pyDCE 的简体中文翻译，请联系 [adrianandino@pm.me](mailto:adrianandino@pm.me) 并附上您的意见或建议。
+
 ---
 
 ## 目录

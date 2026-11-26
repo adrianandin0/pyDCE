@@ -23,6 +23,9 @@
   <img src="gui/screenshot.png" alt="Capture d'écran de pyDCE" width="90%">
 </p>
 
+> [!NOTE]
+> Si vous souhaitez collaborer pour améliorer la traduction de pyDCE en français, veuillez contacter [adrianandino@pm.me](mailto:adrianandino@pm.me) en envoyant vos observations ou commentaires.
+
 ---
 
 ## Table des Matières

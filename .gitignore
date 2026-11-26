@@ -88,6 +88,8 @@ Thumbs.db*
 
 # Windows compilation exclusive files (Local VM build only)
 setup.iss
+*.isl
+installer/
 GUIA_WINDOWS_SETUP.md
 gui/banner_setup.png
 LICENCIA.txt

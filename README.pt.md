@@ -23,6 +23,9 @@
   <img src="gui/screenshot.png" alt="Captura de tela do pyDCE" width="90%">
 </p>
 
+> [!NOTE]
+> Se você tiver interesse em colaborar para melhorar a tradução do pyDCE para o português, entre em contato com [adrianandino@pm.me](mailto:adrianandino@pm.me) enviando suas observações ou comentários.
+
 ---
 
 ## Sumário
